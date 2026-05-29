@@ -17,10 +17,13 @@ const els = {
   expensesKpi: document.querySelector("#expensesKpi"),
   finalResultKpi: document.querySelector("#finalResultKpi"),
   cmvKpi: document.querySelector("#cmvKpi"),
+  netMarginKpi: document.querySelector("#netMarginKpi"),
   statementHead: document.querySelector("#statementHead"),
   statementBody: document.querySelector("#statementBody"),
   comparisonHead: document.querySelector("#comparisonHead"),
   comparisonBody: document.querySelector("#comparisonBody"),
+  budgetHead: document.querySelector("#budgetHead"),
+  budgetBody: document.querySelector("#budgetBody"),
   mainChart: document.querySelector("#mainChart"),
   cmvChart: document.querySelector("#cmvChart")
 };
@@ -45,9 +48,11 @@ function render() {
   els.expensesKpi.textContent = formatCurrency(expenses.accumulated);
   els.finalResultKpi.textContent = formatCurrency(finalResult.accumulated);
   els.cmvKpi.textContent = formatPercent(dashboardData.cmv.accumulated);
+  els.netMarginKpi.textContent = formatPercent(dashboardData.netMargin.value);
 
   renderStatement();
   renderComparison();
+  renderBudgetComparison();
   renderMainChart();
   renderCmvChart();
 }
@@ -100,11 +105,33 @@ function renderComparison() {
   }).join("");
 }
 
+function renderBudgetComparison() {
+  els.budgetHead.innerHTML = `
+    <tr>
+      <th>Linha da DRE</th>
+      <th>Realizado</th>
+      <th>Orçado</th>
+      <th>Diferença</th>
+      <th>Diferença %</th>
+    </tr>
+  `;
+
+  els.budgetBody.innerHTML = dashboardData.budgetComparison.map((line) => `
+    <tr>
+      <td><strong>${escapeHtml(line.label)}</strong></td>
+      <td>${formatCurrency(line.actual)}</td>
+      <td>${formatCurrency(line.budget)}</td>
+      <td class="${line.variance < 0 ? "negative" : "positive"}">${formatCurrency(line.variance)}</td>
+      <td class="${line.variancePct < 0 ? "negative" : "positive"}">${line.variancePct === null ? "-" : formatPercent(line.variancePct)}</td>
+    </tr>
+  `).join("");
+}
+
 function renderMainChart() {
   const series = [
     { label: "Receita bruta", color: palette.revenue, values: getLine("grossRevenue").values.map((item) => item.value) },
     { label: "Despesas", color: palette.expenses, values: getLine("expenses").values.map((item) => Math.abs(item.value)) },
-    { label: "Resultado final", color: palette.result, values: getLine("finalResult").values.map((item) => item.value) }
+    { label: "Resultado líquido final", color: palette.result, values: getLine("finalResult").values.map((item) => item.value) }
   ];
   drawGroupedBars(els.mainChart, dashboardData.months.map((month) => month.label), series, {
     formatter: compactCurrency,
