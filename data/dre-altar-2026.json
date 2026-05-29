@@ -1,0 +1,736 @@
+{
+  "title": "DRE Altar 2026",
+  "source": "DRE Altar 2026.xlsx | aba 2026",
+  "updatedFromFile": "2026-05-29",
+  "months": [
+    {
+      "key": "jan",
+      "label": "Jan"
+    },
+    {
+      "key": "fev",
+      "label": "Fev"
+    },
+    {
+      "key": "mar",
+      "label": "Mar"
+    },
+    {
+      "key": "abr",
+      "label": "Abr"
+    },
+    {
+      "key": "mai",
+      "label": "Mai"
+    },
+    {
+      "key": "jun",
+      "label": "Jun"
+    },
+    {
+      "key": "jul",
+      "label": "Jul"
+    },
+    {
+      "key": "ago",
+      "label": "Ago"
+    },
+    {
+      "key": "set",
+      "label": "Set"
+    },
+    {
+      "key": "out",
+      "label": "Out"
+    },
+    {
+      "key": "nov",
+      "label": "Nov"
+    },
+    {
+      "key": "dez",
+      "label": "Dez"
+    }
+  ],
+  "statement": [
+    {
+      "key": "grossRevenue",
+      "label": "Receita operacional bruta",
+      "sourceLabel": "(+) RECEITA OPERACIONAL BRUTA",
+      "values": [
+        {
+          "month": "jan",
+          "label": "Jan",
+          "value": 2504923.16
+        },
+        {
+          "month": "fev",
+          "label": "Fev",
+          "value": 677476.0
+        },
+        {
+          "month": "mar",
+          "label": "Mar",
+          "value": 402101.0
+        },
+        {
+          "month": "abr",
+          "label": "Abr",
+          "value": 492594.62
+        },
+        {
+          "month": "mai",
+          "label": "Mai",
+          "value": 0.0
+        },
+        {
+          "month": "jun",
+          "label": "Jun",
+          "value": 0.0
+        },
+        {
+          "month": "jul",
+          "label": "Jul",
+          "value": 0.0
+        },
+        {
+          "month": "ago",
+          "label": "Ago",
+          "value": 0.0
+        },
+        {
+          "month": "set",
+          "label": "Set",
+          "value": 0.0
+        },
+        {
+          "month": "out",
+          "label": "Out",
+          "value": 0.0
+        },
+        {
+          "month": "nov",
+          "label": "Nov",
+          "value": 0.0
+        },
+        {
+          "month": "dez",
+          "label": "Dez",
+          "value": 0.0
+        }
+      ],
+      "accumulated": 4077094.7800000003
+    },
+    {
+      "key": "deductions",
+      "label": "Dedu??es de receita operacional bruta",
+      "sourceLabel": "(-) DEDUÇÕES DA RECEITA OPERACIONAL BRUTA",
+      "values": [
+        {
+          "month": "jan",
+          "label": "Jan",
+          "value": -87402.45
+        },
+        {
+          "month": "fev",
+          "label": "Fev",
+          "value": -33020.04
+        },
+        {
+          "month": "mar",
+          "label": "Mar",
+          "value": -27844.24
+        },
+        {
+          "month": "abr",
+          "label": "Abr",
+          "value": -2962.965
+        },
+        {
+          "month": "mai",
+          "label": "Mai",
+          "value": 0.0
+        },
+        {
+          "month": "jun",
+          "label": "Jun",
+          "value": 0.0
+        },
+        {
+          "month": "jul",
+          "label": "Jul",
+          "value": 0.0
+        },
+        {
+          "month": "ago",
+          "label": "Ago",
+          "value": 0.0
+        },
+        {
+          "month": "set",
+          "label": "Set",
+          "value": 0.0
+        },
+        {
+          "month": "out",
+          "label": "Out",
+          "value": 0.0
+        },
+        {
+          "month": "nov",
+          "label": "Nov",
+          "value": 0.0
+        },
+        {
+          "month": "dez",
+          "label": "Dez",
+          "value": 0.0
+        }
+      ],
+      "accumulated": -151229.695
+    },
+    {
+      "key": "netRevenue",
+      "label": "Receita operacional l?quida",
+      "sourceLabel": "(=) RECEITA OPERACIONAL LÍQUIDA",
+      "values": [
+        {
+          "month": "jan",
+          "label": "Jan",
+          "value": 2417520.71
+        },
+        {
+          "month": "fev",
+          "label": "Fev",
+          "value": 644455.96
+        },
+        {
+          "month": "mar",
+          "label": "Mar",
+          "value": 374256.76
+        },
+        {
+          "month": "abr",
+          "label": "Abr",
+          "value": 489631.655
+        },
+        {
+          "month": "mai",
+          "label": "Mai",
+          "value": 0.0
+        },
+        {
+          "month": "jun",
+          "label": "Jun",
+          "value": 0.0
+        },
+        {
+          "month": "jul",
+          "label": "Jul",
+          "value": 0.0
+        },
+        {
+          "month": "ago",
+          "label": "Ago",
+          "value": 0.0
+        },
+        {
+          "month": "set",
+          "label": "Set",
+          "value": 0.0
+        },
+        {
+          "month": "out",
+          "label": "Out",
+          "value": 0.0
+        },
+        {
+          "month": "nov",
+          "label": "Nov",
+          "value": 0.0
+        },
+        {
+          "month": "dez",
+          "label": "Dez",
+          "value": 0.0
+        }
+      ],
+      "accumulated": 3925865.085
+    },
+    {
+      "key": "grossResult",
+      "label": "Resultado operacional bruto",
+      "sourceLabel": "(=) RESULTADO OPERACIONAL BRUTO",
+      "values": [
+        {
+          "month": "jan",
+          "label": "Jan",
+          "value": 2148474.6
+        },
+        {
+          "month": "fev",
+          "label": "Fev",
+          "value": 542050.4
+        },
+        {
+          "month": "mar",
+          "label": "Mar",
+          "value": 306004.37
+        },
+        {
+          "month": "abr",
+          "label": "Abr",
+          "value": 38795.715
+        },
+        {
+          "month": "mai",
+          "label": "Mai",
+          "value": 0.0
+        },
+        {
+          "month": "jun",
+          "label": "Jun",
+          "value": 0.0
+        },
+        {
+          "month": "jul",
+          "label": "Jul",
+          "value": 0.0
+        },
+        {
+          "month": "ago",
+          "label": "Ago",
+          "value": 0.0
+        },
+        {
+          "month": "set",
+          "label": "Set",
+          "value": 0.0
+        },
+        {
+          "month": "out",
+          "label": "Out",
+          "value": 0.0
+        },
+        {
+          "month": "nov",
+          "label": "Nov",
+          "value": 0.0
+        },
+        {
+          "month": "dez",
+          "label": "Dez",
+          "value": 0.0
+        }
+      ],
+      "accumulated": 3035325.085
+    },
+    {
+      "key": "expenses",
+      "label": "Despesas",
+      "sourceLabel": "(-) DESPESAS",
+      "values": [
+        {
+          "month": "jan",
+          "label": "Jan",
+          "value": -1307039.081
+        },
+        {
+          "month": "fev",
+          "label": "Fev",
+          "value": -552997.5264
+        },
+        {
+          "month": "mar",
+          "label": "Mar",
+          "value": -325652.6664
+        },
+        {
+          "month": "abr",
+          "label": "Abr",
+          "value": 0.0
+        },
+        {
+          "month": "mai",
+          "label": "Mai",
+          "value": 0.0
+        },
+        {
+          "month": "jun",
+          "label": "Jun",
+          "value": 0.0
+        },
+        {
+          "month": "jul",
+          "label": "Jul",
+          "value": 0.0
+        },
+        {
+          "month": "ago",
+          "label": "Ago",
+          "value": 0.0
+        },
+        {
+          "month": "set",
+          "label": "Set",
+          "value": 0.0
+        },
+        {
+          "month": "out",
+          "label": "Out",
+          "value": 0.0
+        },
+        {
+          "month": "nov",
+          "label": "Nov",
+          "value": 0.0
+        },
+        {
+          "month": "dez",
+          "label": "Dez",
+          "value": 0.0
+        }
+      ],
+      "accumulated": -2185689.2738
+    },
+    {
+      "key": "operatingResult",
+      "label": "Resultado operacional l?quido",
+      "sourceLabel": "(=) RESULTADO OPERACIONAL LÍQUIDO",
+      "values": [
+        {
+          "month": "jan",
+          "label": "Jan",
+          "value": 841435.5186
+        },
+        {
+          "month": "fev",
+          "label": "Fev",
+          "value": -10947.1264
+        },
+        {
+          "month": "mar",
+          "label": "Mar",
+          "value": -19648.2964
+        },
+        {
+          "month": "abr",
+          "label": "Abr",
+          "value": 38795.715
+        },
+        {
+          "month": "mai",
+          "label": "Mai",
+          "value": 0.0
+        },
+        {
+          "month": "jun",
+          "label": "Jun",
+          "value": 0.0
+        },
+        {
+          "month": "jul",
+          "label": "Jul",
+          "value": 0.0
+        },
+        {
+          "month": "ago",
+          "label": "Ago",
+          "value": 0.0
+        },
+        {
+          "month": "set",
+          "label": "Set",
+          "value": 0.0
+        },
+        {
+          "month": "out",
+          "label": "Out",
+          "value": 0.0
+        },
+        {
+          "month": "nov",
+          "label": "Nov",
+          "value": 0.0
+        },
+        {
+          "month": "dez",
+          "label": "Dez",
+          "value": 0.0
+        }
+      ],
+      "accumulated": 849635.8108
+    },
+    {
+      "key": "beforeTax",
+      "label": "Resultado final antes do IR e CSLL",
+      "sourceLabel": "(=) RESULTADO FINAL ANTES DO IRPJ E CSLL",
+      "values": [
+        {
+          "month": "jan",
+          "label": "Jan",
+          "value": 1473701.252
+        },
+        {
+          "month": "fev",
+          "label": "Fev",
+          "value": 117422.9069
+        },
+        {
+          "month": "mar",
+          "label": "Mar",
+          "value": 117506.6069
+        },
+        {
+          "month": "abr",
+          "label": "Abr",
+          "value": 38795.715
+        },
+        {
+          "month": "mai",
+          "label": "Mai",
+          "value": 0.0
+        },
+        {
+          "month": "jun",
+          "label": "Jun",
+          "value": 0.0
+        },
+        {
+          "month": "jul",
+          "label": "Jul",
+          "value": 0.0
+        },
+        {
+          "month": "ago",
+          "label": "Ago",
+          "value": 0.0
+        },
+        {
+          "month": "set",
+          "label": "Set",
+          "value": 0.0
+        },
+        {
+          "month": "out",
+          "label": "Out",
+          "value": 0.0
+        },
+        {
+          "month": "nov",
+          "label": "Nov",
+          "value": 0.0
+        },
+        {
+          "month": "dez",
+          "label": "Dez",
+          "value": 0.0
+        }
+      ],
+      "accumulated": 1747426.4808
+    },
+    {
+      "key": "beforeParticipation",
+      "label": "Resultado final antes das participa??es",
+      "sourceLabel": "(=) RESULTADO FINAL ANTES DAS PARTICIPAÇÕES",
+      "values": [
+        {
+          "month": "jan",
+          "label": "Jan",
+          "value": 1368243.987
+        },
+        {
+          "month": "fev",
+          "label": "Fev",
+          "value": 88901.16733
+        },
+        {
+          "month": "mar",
+          "label": "Mar",
+          "value": 100578.1548
+        },
+        {
+          "month": "abr",
+          "label": "Abr",
+          "value": 38795.715
+        },
+        {
+          "month": "mai",
+          "label": "Mai",
+          "value": 0.0
+        },
+        {
+          "month": "jun",
+          "label": "Jun",
+          "value": 0.0
+        },
+        {
+          "month": "jul",
+          "label": "Jul",
+          "value": 0.0
+        },
+        {
+          "month": "ago",
+          "label": "Ago",
+          "value": 0.0
+        },
+        {
+          "month": "set",
+          "label": "Set",
+          "value": 0.0
+        },
+        {
+          "month": "out",
+          "label": "Out",
+          "value": 0.0
+        },
+        {
+          "month": "nov",
+          "label": "Nov",
+          "value": 0.0
+        },
+        {
+          "month": "dez",
+          "label": "Dez",
+          "value": 0.0
+        }
+      ],
+      "accumulated": 1596519.02413
+    },
+    {
+      "key": "finalResult",
+      "label": "Resultado final l?quido",
+      "sourceLabel": "(=) RESULTADO LÍQUIDO FINAL",
+      "values": [
+        {
+          "month": "jan",
+          "label": "Jan",
+          "value": 1368243.987
+        },
+        {
+          "month": "fev",
+          "label": "Fev",
+          "value": 88901.16733
+        },
+        {
+          "month": "mar",
+          "label": "Mar",
+          "value": 100578.1548
+        },
+        {
+          "month": "abr",
+          "label": "Abr",
+          "value": 38795.715
+        },
+        {
+          "month": "mai",
+          "label": "Mai",
+          "value": 0.0
+        },
+        {
+          "month": "jun",
+          "label": "Jun",
+          "value": 0.0
+        },
+        {
+          "month": "jul",
+          "label": "Jul",
+          "value": 0.0
+        },
+        {
+          "month": "ago",
+          "label": "Ago",
+          "value": 0.0
+        },
+        {
+          "month": "set",
+          "label": "Set",
+          "value": 0.0
+        },
+        {
+          "month": "out",
+          "label": "Out",
+          "value": 0.0
+        },
+        {
+          "month": "nov",
+          "label": "Nov",
+          "value": 0.0
+        },
+        {
+          "month": "dez",
+          "label": "Dez",
+          "value": 0.0
+        }
+      ],
+      "accumulated": 1596519.02413
+    }
+  ],
+  "cmv": {
+    "label": "CMV geral",
+    "sourceLabel": "CMV",
+    "values": [
+      {
+        "month": "jan",
+        "label": "Jan",
+        "value": 27.412543499999998
+      },
+      {
+        "month": "fev",
+        "label": "Fev",
+        "value": 25.43940459
+      },
+      {
+        "month": "mar",
+        "label": "Mar",
+        "value": 27.00198997
+      },
+      {
+        "month": "abr",
+        "label": "Abr",
+        "value": 1.350671501
+      },
+      {
+        "month": "mai",
+        "label": "Mai",
+        "value": 0
+      },
+      {
+        "month": "jun",
+        "label": "Jun",
+        "value": 0
+      },
+      {
+        "month": "jul",
+        "label": "Jul",
+        "value": 0
+      },
+      {
+        "month": "ago",
+        "label": "Ago",
+        "value": 0
+      },
+      {
+        "month": "set",
+        "label": "Set",
+        "value": 0
+      },
+      {
+        "month": "out",
+        "label": "Out",
+        "value": 0
+      },
+      {
+        "month": "nov",
+        "label": "Nov",
+        "value": 0
+      },
+      {
+        "month": "dez",
+        "label": "Dez",
+        "value": 0
+      }
+    ],
+    "accumulated": 0
+  }
+}
