@@ -34,14 +34,14 @@ const els = {
 
 const dreStatementLines = [
   { key: "grossRevenue", label: "Receita operacional bruta", match: "RECEITA OPERACIONAL BRUTA" },
-  { key: "deductions", label: "Deducoes da receita operacional bruta", match: "DEDUCOES DA RECEITA OPERACIONAL BRUTA" },
-  { key: "netRevenue", label: "Receita operacional liquida", match: "RECEITA OPERACIONAL LIQUIDA" },
+  { key: "deductions", label: "Deduções de receita operacional bruta", match: "DEDUCOES DA RECEITA OPERACIONAL BRUTA" },
+  { key: "netRevenue", label: "Receita operacional líquida", match: "RECEITA OPERACIONAL LIQUIDA" },
   { key: "grossResult", label: "Resultado operacional bruto", match: "RESULTADO OPERACIONAL BRUTO" },
   { key: "expenses", label: "Despesas", match: "DESPESAS" },
-  { key: "operatingResult", label: "Resultado operacional liquido", match: "RESULTADO OPERACIONAL LIQUIDO" },
-  { key: "beforeTax", label: "Resultado final antes do IRPJ e CSLL", match: "RESULTADO FINAL ANTES DO IRPJ E CSLL" },
-  { key: "beforeParticipation", label: "Resultado final antes das participacoes", match: "RESULTADO FINAL ANTES DAS PARTICIPACOES" },
-  { key: "finalResult", label: "Resultado final liquido", match: "RESULTADO LIQUIDO FINAL" }
+  { key: "operatingResult", label: "Resultado operacional líquido", match: "RESULTADO OPERACIONAL LIQUIDO" },
+  { key: "beforeTax", label: "Resultado final antes do IR e CSLL", match: "RESULTADO FINAL ANTES DO IRPJ E CSLL" },
+  { key: "beforeParticipation", label: "Resultado final antes das participações", match: "RESULTADO FINAL ANTES DAS PARTICIPACOES" },
+  { key: "finalResult", label: "Resultado final líquido", match: "RESULTADO LIQUIDO FINAL" }
 ];
 
 let state = {
