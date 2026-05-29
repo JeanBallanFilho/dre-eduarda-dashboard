@@ -60,6 +60,10 @@
             <span>Indicador</span>
             <select id="metricSelect"></select>
           </label>
+          <label>
+            <span>Linha DRE</span>
+            <select id="statementLineSelect"></select>
+          </label>
         </section>
 
         <section class="status-banner" id="statusBanner" hidden></section>
@@ -85,6 +89,21 @@
             <strong id="kpiCoverage">--</strong>
             <small id="kpiCoverageNote">Valores preenchidos</small>
           </article>
+        </section>
+
+        <section class="panel statement-panel" aria-label="Demonstrativo principal da DRE">
+          <div class="panel-header table-actions">
+            <div>
+              <h2>Demonstrativo executivo</h2>
+              <p id="statementSubtitle">Linhas principais da DRE, sem somar subcontas</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="statement-table">
+              <thead id="statementHead"></thead>
+              <tbody id="statementBody"></tbody>
+            </table>
+          </div>
         </section>
 
         <section class="dashboard-grid" id="evolucao">
@@ -122,6 +141,18 @@
             <div class="donut-wrap">
               <canvas id="donutChart" width="320" height="320"></canvas>
               <div id="donutLegend" class="legend"></div>
+            </div>
+          </article>
+
+          <article class="panel wide">
+            <div class="panel-header">
+              <div>
+                <h2>Comparativo CMV</h2>
+                <p id="cmvSubtitle">CMV total e CMV bebidas por mes</p>
+              </div>
+            </div>
+            <div class="chart-area">
+              <canvas id="cmvChart" width="900" height="340"></canvas>
             </div>
           </article>
         </section>
