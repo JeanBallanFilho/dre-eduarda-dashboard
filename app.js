@@ -211,6 +211,11 @@ function parseNumber(value) {
 function parseDate(value) {
   const text = String(value || "").trim();
   if (!text) return null;
+  const isoDateOnly = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (isoDateOnly) {
+    const date = new Date(Number(isoDateOnly[1]), Number(isoDateOnly[2]) - 1, Number(isoDateOnly[3]));
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
   const br = text.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})/);
   if (br) {
     const year = br[3].length === 2 ? Number(`20${br[3]}`) : Number(br[3]);
@@ -500,6 +505,14 @@ function drawBarChart(canvas, data, options = {}) {
       roundRect(ctx, x, y, barW, barH, 6);
       ctx.fill();
       ctx.save();
+      ctx.fillStyle = "#1d2528";
+      ctx.font = "700 11px Inter, sans-serif";
+      ctx.textAlign = "center";
+      const label = compactNumber(item.value);
+      const labelY = y > padding.top + 16 ? y - 7 : y + 15;
+      ctx.fillText(label, x + barW / 2, labelY);
+      ctx.restore();
+      ctx.save();
       ctx.translate(x + barW / 2, padding.top + chartH + 18);
       ctx.rotate(-Math.PI / 5);
       ctx.fillStyle = "#667276";
@@ -594,6 +607,13 @@ function formatMonthKey(key) {
 
 function formatNumber(value) {
   return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: value > 100 ? 0 : 1 }).format(value || 0);
+}
+
+function compactNumber(value) {
+  const abs = Math.abs(value || 0);
+  if (abs >= 1000000) return `${formatNumber(value / 1000000)} mi`;
+  if (abs >= 1000) return `${formatNumber(value / 1000)} mil`;
+  return formatNumber(value);
 }
 
 function truncate(text, max) {
