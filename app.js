@@ -106,23 +106,30 @@ function renderComparison() {
 }
 
 function renderBudgetComparison() {
+  const monthHeaders = dashboardData.months.map((month) => `<th>${month.label}<small>Real / Orç / Δ</small></th>`).join("");
   els.budgetHead.innerHTML = `
     <tr>
       <th>Linha da DRE</th>
-      <th>Realizado</th>
-      <th>Orçado</th>
-      <th>Diferença</th>
-      <th>Diferença %</th>
+      ${monthHeaders}
+      <th>Acumulado</th>
     </tr>
   `;
 
   els.budgetBody.innerHTML = dashboardData.budgetComparison.map((line) => `
     <tr>
       <td><strong>${escapeHtml(line.label)}</strong></td>
-      <td>${formatCurrency(line.actual)}</td>
-      <td>${formatCurrency(line.budget)}</td>
-      <td class="${line.variance < 0 ? "negative" : "positive"}">${formatCurrency(line.variance)}</td>
-      <td class="${line.variancePct < 0 ? "negative" : "positive"}">${line.variancePct === null ? "-" : formatPercent(line.variancePct)}</td>
+      ${line.values.map((item) => `
+        <td>
+          <span>${formatCurrency(item.actual)}</span>
+          <small>${formatCurrency(item.budget)}</small>
+          <em class="${item.variance < 0 ? "negative" : "positive"}">${formatCurrency(item.variance)}</em>
+        </td>
+      `).join("")}
+      <td>
+        <span>${formatCurrency(line.actual)}</span>
+        <small>${formatCurrency(line.budget)}</small>
+        <em class="${line.variance < 0 ? "negative" : "positive"}">${formatCurrency(line.variance)}</em>
+      </td>
     </tr>
   `).join("");
 }
