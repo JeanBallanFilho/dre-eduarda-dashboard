@@ -19,6 +19,8 @@ const els = {
   cmvKpi: document.querySelector("#cmvKpi"),
   statementHead: document.querySelector("#statementHead"),
   statementBody: document.querySelector("#statementBody"),
+  comparisonHead: document.querySelector("#comparisonHead"),
+  comparisonBody: document.querySelector("#comparisonBody"),
   mainChart: document.querySelector("#mainChart"),
   cmvChart: document.querySelector("#cmvChart")
 };
@@ -42,9 +44,10 @@ function render() {
   els.grossRevenueKpi.textContent = formatCurrency(grossRevenue.accumulated);
   els.expensesKpi.textContent = formatCurrency(expenses.accumulated);
   els.finalResultKpi.textContent = formatCurrency(finalResult.accumulated);
-  els.cmvKpi.textContent = `${formatNumber(dashboardData.cmv.accumulated)}%`;
+  els.cmvKpi.textContent = formatPercent(dashboardData.cmv.accumulated);
 
   renderStatement();
+  renderComparison();
   renderMainChart();
   renderCmvChart();
 }
@@ -70,6 +73,33 @@ function renderStatement() {
   `).join("");
 }
 
+function renderComparison() {
+  const rows = [...dashboardData.comparison, dashboardData.cmvComparison];
+  els.comparisonHead.innerHTML = `
+    <tr>
+      <th>Linha da DRE</th>
+      <th>2025</th>
+      <th>2026</th>
+      <th>Variação</th>
+      <th>Variação %</th>
+    </tr>
+  `;
+
+  els.comparisonBody.innerHTML = rows.map((line) => {
+    const isCmv = line.label.includes("CMV");
+    const valueFormatter = isCmv ? formatPercent : formatCurrency;
+    return `
+      <tr class="${line.key === "finalResult" ? "statement-row-total" : ""}">
+        <td><strong>${escapeHtml(line.label)}</strong></td>
+        <td>${valueFormatter(line.value2025)}</td>
+        <td>${valueFormatter(line.value2026)}</td>
+        <td class="${line.delta < 0 ? "negative" : "positive"}">${isCmv ? formatPercent(line.delta) : formatCurrency(line.delta)}</td>
+        <td class="${line.deltaPct < 0 ? "negative" : "positive"}">${line.deltaPct === null ? "-" : formatPercent(line.deltaPct)}</td>
+      </tr>
+    `;
+  }).join("");
+}
+
 function renderMainChart() {
   const series = [
     { label: "Receita bruta", color: palette.revenue, values: getLine("grossRevenue").values.map((item) => item.value) },
@@ -85,7 +115,7 @@ function renderMainChart() {
 function renderCmvChart() {
   drawSingleBars(els.cmvChart, dashboardData.months.map((month) => month.label), dashboardData.cmv.values.map((item) => item.value), {
     color: palette.cmv,
-    formatter: (value) => `${formatNumber(value)}%`
+    formatter: formatPercent
   });
 }
 
@@ -254,6 +284,10 @@ function compactCurrency(value) {
 
 function formatNumber(value) {
   return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 }).format(value || 0);
+}
+
+function formatPercent(value) {
+  return `${formatNumber(value)}%`;
 }
 
 function formatDate(value) {
