@@ -347,8 +347,6 @@ function renderMainChart() {
     { label: "Receita bruta", color: palette.revenue, values: getLine("grossRevenue").values.map((item) => item.value) },
     { label: "Despesas", color: palette.expenses, values: getLine("expenses").values.map((item) => item.value) },
     { label: "Antes IRPJ/CSLL", color: palette.beforeTax, values: getLine("beforeTax").values.map((item) => item.value) },
-    { label: "IRPJ", color: palette.irpj, values: getLine("irpj").values.map((item) => item.value) },
-    { label: "CSLL", color: palette.csll, values: getLine("csll").values.map((item) => item.value) },
     { label: "Resultado líquido final", color: palette.result, values: getLine("finalResult").values.map((item) => item.value) }
   ];
   drawGroupedBars(els.mainChart, dashboardData.months.map((month) => month.label), series, {
