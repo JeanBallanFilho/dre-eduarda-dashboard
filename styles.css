@@ -199,6 +199,33 @@ th {
   z-index: 1;
 }
 
+th small,
+td span,
+td small,
+td em {
+  display: block;
+}
+
+th small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-style: normal;
+  font-weight: 700;
+  text-transform: none;
+}
+
+td small {
+  margin-top: 3px;
+  color: var(--muted);
+}
+
+td em {
+  margin-top: 3px;
+  font-style: normal;
+  font-size: 0.78rem;
+}
+
 th:first-child,
 td:first-child {
   position: sticky;
