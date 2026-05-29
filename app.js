@@ -261,14 +261,14 @@ function profileData(rows) {
 async function loadData() {
   showStatus("Carregando dados da planilha...");
   try {
-    const response = await fetch("/api/data");
+    const response = await fetch(`/api/data?t=${Date.now()}`, { cache: "no-store" });
     if (!response.ok) throw new Error("A rota local de dados ainda nao esta ativa.");
     const text = await response.text();
       setRows(transformCsv(text));
     hideStatus();
   } catch (firstError) {
     try {
-      const direct = await fetch(SHEET_CSV_URL);
+      const direct = await fetch(`${SHEET_CSV_URL}&t=${Date.now()}`, { cache: "no-store" });
       if (!direct.ok) throw new Error("Leitura direta bloqueada.");
       setRows(transformCsv(await direct.text()));
       hideStatus();

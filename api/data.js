@@ -15,7 +15,10 @@ module.exports = async function handler(request, response) {
 
     const csv = await sheetResponse.text();
     response.setHeader("Content-Type", "text/csv; charset=utf-8");
-    response.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=3600");
+    response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    response.setHeader("Pragma", "no-cache");
+    response.setHeader("Expires", "0");
+    response.setHeader("Surrogate-Control", "no-store");
     response.status(200).send(csv);
   } catch (error) {
     response.status(502).json({
