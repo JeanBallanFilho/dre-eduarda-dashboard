@@ -1,0 +1,12 @@
+{
+  "name": "dre-eduarda-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "vercel dev",
+    "serve": "npx http-server . -p 4173 -c-1"
+  },
+  "devDependencies": {
+    "vercel": "^35.2.3"
+  }
+}
