@@ -601,7 +601,7 @@
         },
         {
           "key": "finalResult",
-          "label": "Resultado final líquido",
+          "label": "Resultado líquido final pós IRPJ/CSLL",
           "sourceLabel": "(=) RESULTADO LÍQUIDO FINAL",
           "values": [
             {
@@ -804,7 +804,10 @@
               "value": 0
             }
           ],
-          "accumulated": 4077094.78
+          "accumulated": 4077094.78,
+          "budget": 1910290,
+          "budgetVariance": 2166804.78,
+          "budgetVariancePct": 113.42805437917802
         },
         {
           "key": "deductions",
@@ -872,7 +875,10 @@
               "value": 0
             }
           ],
-          "accumulated": -151229.695
+          "accumulated": -151229.695,
+          "budget": -273339,
+          "budgetVariance": 122109.305,
+          "budgetVariancePct": 44.67320982369877
         },
         {
           "key": "netRevenue",
@@ -940,7 +946,10 @@
               "value": 0
             }
           ],
-          "accumulated": 3925865.085
+          "accumulated": 3925865.085,
+          "budget": 1636951,
+          "budgetVariance": 2288914.085,
+          "budgetVariancePct": 139.82789252702128
         },
         {
           "key": "grossResult",
@@ -1008,7 +1017,10 @@
               "value": 0
             }
           ],
-          "accumulated": 3035325.085
+          "accumulated": 3035325.085,
+          "budget": 1328343,
+          "budgetVariance": 1706982.085,
+          "budgetVariancePct": 128.50461703039048
         },
         {
           "key": "expenses",
@@ -1076,7 +1088,10 @@
               "value": 0
             }
           ],
-          "accumulated": -2185689.274
+          "accumulated": -2185689.274,
+          "budget": -934062,
+          "budgetVariance": -1251627.2740000002,
+          "budgetVariancePct": -133.99830782110826
         },
         {
           "key": "operatingResult",
@@ -1284,7 +1299,7 @@
         },
         {
           "key": "finalResult",
-          "label": "Resultado final líquido",
+          "label": "Resultado líquido final pós IRPJ/CSLL",
           "sourceLabel": "(=) RESULTADO LÍQUIDO FINAL",
           "values": [
             {
@@ -1487,7 +1502,10 @@
           "value": 0
         }
       ],
-      "accumulated": 4077094.78
+      "accumulated": 4077094.78,
+      "budget": 1910290,
+      "budgetVariance": 2166804.78,
+      "budgetVariancePct": 113.42805437917802
     },
     {
       "key": "deductions",
@@ -1555,7 +1573,10 @@
           "value": 0
         }
       ],
-      "accumulated": -151229.695
+      "accumulated": -151229.695,
+      "budget": -273339,
+      "budgetVariance": 122109.305,
+      "budgetVariancePct": 44.67320982369877
     },
     {
       "key": "netRevenue",
@@ -1623,7 +1644,10 @@
           "value": 0
         }
       ],
-      "accumulated": 3925865.085
+      "accumulated": 3925865.085,
+      "budget": 1636951,
+      "budgetVariance": 2288914.085,
+      "budgetVariancePct": 139.82789252702128
     },
     {
       "key": "grossResult",
@@ -1691,7 +1715,10 @@
           "value": 0
         }
       ],
-      "accumulated": 3035325.085
+      "accumulated": 3035325.085,
+      "budget": 1328343,
+      "budgetVariance": 1706982.085,
+      "budgetVariancePct": 128.50461703039048
     },
     {
       "key": "expenses",
@@ -1759,7 +1786,10 @@
           "value": 0
         }
       ],
-      "accumulated": -2185689.274
+      "accumulated": -2185689.274,
+      "budget": -934062,
+      "budgetVariance": -1251627.2740000002,
+      "budgetVariancePct": -133.99830782110826
     },
     {
       "key": "operatingResult",
@@ -1967,7 +1997,7 @@
     },
     {
       "key": "finalResult",
-      "label": "Resultado final líquido",
+      "label": "Resultado líquido final pós IRPJ/CSLL",
       "sourceLabel": "(=) RESULTADO LÍQUIDO FINAL",
       "values": [
         {
@@ -2101,6 +2131,114 @@
     ],
     "accumulated": 45.19194708
   },
+  "netMargin": {
+    "label": "Margem l?quida (%)",
+    "value": 39.158251405673724,
+    "values": [
+      {
+        "month": "jan",
+        "label": "Jan",
+        "value": 54.62219395983388
+      },
+      {
+        "month": "fev",
+        "label": "Fev",
+        "value": 13.122408370185806
+      },
+      {
+        "month": "mar",
+        "label": "Mar",
+        "value": 25.013157092372317
+      },
+      {
+        "month": "abr",
+        "label": "Abr",
+        "value": 7.875789427014042
+      },
+      {
+        "month": "mai",
+        "label": "Mai",
+        "value": 0
+      },
+      {
+        "month": "jun",
+        "label": "Jun",
+        "value": 0
+      },
+      {
+        "month": "jul",
+        "label": "Jul",
+        "value": 0
+      },
+      {
+        "month": "ago",
+        "label": "Ago",
+        "value": 0
+      },
+      {
+        "month": "set",
+        "label": "Set",
+        "value": 0
+      },
+      {
+        "month": "out",
+        "label": "Out",
+        "value": 0
+      },
+      {
+        "month": "nov",
+        "label": "Nov",
+        "value": 0
+      },
+      {
+        "month": "dez",
+        "label": "Dez",
+        "value": 0
+      }
+    ]
+  },
+  "budgetComparison": [
+    {
+      "key": "grossRevenue",
+      "label": "Receita operacional bruta",
+      "actual": 4077094.78,
+      "budget": 1910290,
+      "variance": 2166804.78,
+      "variancePct": 113.42805437917802
+    },
+    {
+      "key": "deductions",
+      "label": "Deduções de receita operacional bruta",
+      "actual": -151229.695,
+      "budget": -273339,
+      "variance": 122109.305,
+      "variancePct": 44.67320982369877
+    },
+    {
+      "key": "netRevenue",
+      "label": "Receita operacional líquida",
+      "actual": 3925865.085,
+      "budget": 1636951,
+      "variance": 2288914.085,
+      "variancePct": 139.82789252702128
+    },
+    {
+      "key": "grossResult",
+      "label": "Resultado operacional bruto",
+      "actual": 3035325.085,
+      "budget": 1328343,
+      "variance": 1706982.085,
+      "variancePct": 128.50461703039048
+    },
+    {
+      "key": "expenses",
+      "label": "Despesas",
+      "actual": -2185689.274,
+      "budget": -934062,
+      "variance": -1251627.2740000002,
+      "variancePct": -133.99830782110826
+    }
+  ],
   "comparison": [
     {
       "key": "grossRevenue",
@@ -2168,7 +2306,7 @@
     },
     {
       "key": "finalResult",
-      "label": "Resultado final líquido",
+      "label": "Resultado líquido final pós IRPJ/CSLL",
       "value2025": 1548852.1463399993,
       "value2026": 1596519.024,
       "delta": 47666.8776600007,
