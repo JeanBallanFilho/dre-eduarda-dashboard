@@ -27,6 +27,8 @@ const statementDefs = [
   { key: "expenses", label: "Despesas", actual: ["DESPESAS"], budget: ["DESPESAS"] },
   { key: "operatingResult", label: "Resultado operacional líquido", actual: ["RESULTADO OPERACIONAL LIQUIDO"], budget: ["RESULTADO OPERACIONAL LIQUIDO"] },
   { key: "beforeTax", label: "Resultado final antes do IR e CSLL", actual: ["RESULTADO FINAL ANTES DO IRPJ E CSLL", "RESULTADO FINAL ANTES DO IR E CSLL"], budget: [] },
+  { key: "irpj", label: "IRPJ", actual: ["IRPJ"], budget: [] },
+  { key: "csll", label: "CSLL", actual: ["CSLL"], budget: [] },
   { key: "beforeParticipation", label: "Resultado final antes das participações", actual: ["RESULTADO FINAL ANTES DAS PARTICIPACOES"], budget: [] },
   { key: "finalResult", label: "Resultado líquido final pós IRPJ/CSLL", actual: ["RESULTADO LIQUIDO FINAL"], budget: ["RESULTADO FINAL"] }
 ];
@@ -40,6 +42,9 @@ const columnMap = {
 const palette = {
   revenue: "#2f7d57",
   expenses: "#b85661",
+  beforeTax: "#7f6ab0",
+  irpj: "#d07c36",
+  csll: "#8f553a",
   result: "#356b9a",
   cmv: "#c7922f",
   grid: "#e4e1d9",
@@ -340,7 +345,10 @@ function renderBudgetComparison() {
 function renderMainChart() {
   const series = [
     { label: "Receita bruta", color: palette.revenue, values: getLine("grossRevenue").values.map((item) => item.value) },
-    { label: "Despesas", color: palette.expenses, values: getLine("expenses").values.map((item) => Math.abs(item.value)) },
+    { label: "Despesas", color: palette.expenses, values: getLine("expenses").values.map((item) => item.value) },
+    { label: "Antes IRPJ/CSLL", color: palette.beforeTax, values: getLine("beforeTax").values.map((item) => item.value) },
+    { label: "IRPJ", color: palette.irpj, values: getLine("irpj").values.map((item) => item.value) },
+    { label: "CSLL", color: palette.csll, values: getLine("csll").values.map((item) => item.value) },
     { label: "Resultado líquido final", color: palette.result, values: getLine("finalResult").values.map((item) => item.value) }
   ];
   drawGroupedBars(els.mainChart, dashboardData.months.map((month) => month.label), series, {
@@ -463,7 +471,7 @@ function drawGroupedBars(canvas, labels, series, options) {
 
   const allValues = series.flatMap((item) => item.values.map(Math.abs));
   const max = Math.max(1, ...allValues);
-  const padding = { top: 26, right: 22, bottom: 76, left: 58 };
+  const padding = { top: 30, right: 22, bottom: 94, left: 58 };
   const chartW = w - padding.left - padding.right;
   const chartH = h - padding.top - padding.bottom;
   const groupGap = 13;
@@ -484,10 +492,12 @@ function drawGroupedBars(canvas, labels, series, options) {
       ctx.fillStyle = item.color;
       roundRect(ctx, x, y, barW, barH, 5);
       ctx.fill();
-      ctx.fillStyle = palette.ink;
-      ctx.font = "700 10px Inter, sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText(options.formatter(rawValue), x + barW / 2, y > padding.top + 14 ? y - 5 : y + 13);
+      if (rawValue !== 0) {
+        ctx.fillStyle = palette.ink;
+        ctx.font = "700 9px Inter, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(options.formatter(rawValue), x + barW / 2, y > padding.top + 14 ? y - 5 : y + 13);
+      }
     });
     drawMonthLabel(ctx, label, groupX + groupW / 2, padding.top + chartH + 18);
   });
@@ -559,13 +569,19 @@ function drawMonthLabel(ctx, label, x, y) {
 
 function drawLegend(ctx, series, x, y) {
   series.forEach((item, index) => {
-    const offset = index * 154;
+    const chartWidth = ctx.canvas.width / (window.devicePixelRatio || 1);
+    const itemWidth = 170;
+    const perRow = Math.max(1, Math.floor((chartWidth - x - 18) / itemWidth));
+    const row = Math.floor(index / perRow);
+    const column = index % perRow;
+    const itemX = x + column * itemWidth;
+    const itemY = y + row * 18;
     ctx.fillStyle = item.color;
-    ctx.fillRect(x + offset, y - 10, 12, 12);
+    ctx.fillRect(itemX, itemY - 10, 12, 12);
     ctx.fillStyle = "#495357";
     ctx.textAlign = "left";
     ctx.font = "700 12px Inter, sans-serif";
-    ctx.fillText(item.label, x + offset + 18, y);
+    ctx.fillText(item.label, itemX + 18, itemY);
   });
 }
 
