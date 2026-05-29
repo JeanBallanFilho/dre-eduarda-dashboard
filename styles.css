@@ -238,6 +238,16 @@ td {
   background: #f8f1df;
 }
 
+.positive {
+  color: var(--green);
+  font-weight: 800;
+}
+
+.negative {
+  color: var(--rose);
+  font-weight: 800;
+}
+
 .dashboard-grid {
   display: grid;
   gap: 14px;
