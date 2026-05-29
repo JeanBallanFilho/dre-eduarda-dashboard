@@ -1,6 +1,6 @@
 {
   "title": "DRE Altar 2026",
-  "source": "DRE Altar 2026.xlsx | abas 2026 e 2025",
+  "source": "DRE Altar 2026.xlsx | abas 2026, 2025 e Orçamento DRE 26",
   "updatedFromFile": "2026-05-29",
   "months": [
     {
@@ -804,10 +804,7 @@
               "value": 0
             }
           ],
-          "accumulated": 4077094.78,
-          "budget": 1910290,
-          "budgetVariance": 2166804.78,
-          "budgetVariancePct": 113.42805437917802
+          "accumulated": 4077094.78
         },
         {
           "key": "deductions",
@@ -875,10 +872,7 @@
               "value": 0
             }
           ],
-          "accumulated": -151229.695,
-          "budget": -273339,
-          "budgetVariance": 122109.305,
-          "budgetVariancePct": 44.67320982369877
+          "accumulated": -151229.695
         },
         {
           "key": "netRevenue",
@@ -946,10 +940,7 @@
               "value": 0
             }
           ],
-          "accumulated": 3925865.085,
-          "budget": 1636951,
-          "budgetVariance": 2288914.085,
-          "budgetVariancePct": 139.82789252702128
+          "accumulated": 3925865.085
         },
         {
           "key": "grossResult",
@@ -1017,10 +1008,7 @@
               "value": 0
             }
           ],
-          "accumulated": 3035325.085,
-          "budget": 1328343,
-          "budgetVariance": 1706982.085,
-          "budgetVariancePct": 128.50461703039048
+          "accumulated": 3035325.085
         },
         {
           "key": "expenses",
@@ -1088,10 +1076,7 @@
               "value": 0
             }
           ],
-          "accumulated": -2185689.274,
-          "budget": -934062,
-          "budgetVariance": -1251627.2740000002,
-          "budgetVariancePct": -133.99830782110826
+          "accumulated": -2185689.274
         },
         {
           "key": "operatingResult",
@@ -1502,10 +1487,7 @@
           "value": 0
         }
       ],
-      "accumulated": 4077094.78,
-      "budget": 1910290,
-      "budgetVariance": 2166804.78,
-      "budgetVariancePct": 113.42805437917802
+      "accumulated": 4077094.78
     },
     {
       "key": "deductions",
@@ -1573,10 +1555,7 @@
           "value": 0
         }
       ],
-      "accumulated": -151229.695,
-      "budget": -273339,
-      "budgetVariance": 122109.305,
-      "budgetVariancePct": 44.67320982369877
+      "accumulated": -151229.695
     },
     {
       "key": "netRevenue",
@@ -1644,10 +1623,7 @@
           "value": 0
         }
       ],
-      "accumulated": 3925865.085,
-      "budget": 1636951,
-      "budgetVariance": 2288914.085,
-      "budgetVariancePct": 139.82789252702128
+      "accumulated": 3925865.085
     },
     {
       "key": "grossResult",
@@ -1715,10 +1691,7 @@
           "value": 0
         }
       ],
-      "accumulated": 3035325.085,
-      "budget": 1328343,
-      "budgetVariance": 1706982.085,
-      "budgetVariancePct": 128.50461703039048
+      "accumulated": 3035325.085
     },
     {
       "key": "expenses",
@@ -1786,10 +1759,7 @@
           "value": 0
         }
       ],
-      "accumulated": -2185689.274,
-      "budget": -934062,
-      "budgetVariance": -1251627.2740000002,
-      "budgetVariancePct": -133.99830782110826
+      "accumulated": -2185689.274
     },
     {
       "key": "operatingResult",
@@ -2132,7 +2102,7 @@
     "accumulated": 45.19194708
   },
   "netMargin": {
-    "label": "Margem l?quida (%)",
+    "label": "Margem líquida (%)",
     "value": 39.158251405673724,
     "values": [
       {
@@ -2201,42 +2171,751 @@
     {
       "key": "grossRevenue",
       "label": "Receita operacional bruta",
+      "sourceLabel": "(+) RECEITA OPERACIONAL BRUTA",
+      "values": [
+        {
+          "month": "jan",
+          "label": "Jan",
+          "actual": 2504923.16,
+          "budget": 1910290,
+          "variance": 594633.1600000001,
+          "variancePct": 31.127899952363265
+        },
+        {
+          "month": "fev",
+          "label": "Fev",
+          "actual": 677476,
+          "budget": 298306,
+          "variance": 379170,
+          "variancePct": 127.10773501035848
+        },
+        {
+          "month": "mar",
+          "label": "Mar",
+          "actual": 402101,
+          "budget": 621384,
+          "variance": -219283,
+          "variancePct": -35.289450645655506
+        },
+        {
+          "month": "abr",
+          "label": "Abr",
+          "actual": 492594.62,
+          "budget": 459584,
+          "variance": 33010.619999999995,
+          "variancePct": 7.182717414009191
+        },
+        {
+          "month": "mai",
+          "label": "Mai",
+          "actual": 0,
+          "budget": 324693,
+          "variance": -324693,
+          "variancePct": -100
+        },
+        {
+          "month": "jun",
+          "label": "Jun",
+          "actual": 0,
+          "budget": 440052,
+          "variance": -440052,
+          "variancePct": -100
+        },
+        {
+          "month": "jul",
+          "label": "Jul",
+          "actual": 0,
+          "budget": 330137,
+          "variance": -330137,
+          "variancePct": -100
+        },
+        {
+          "month": "ago",
+          "label": "Ago",
+          "actual": 0,
+          "budget": 304641,
+          "variance": -304641,
+          "variancePct": -100
+        },
+        {
+          "month": "set",
+          "label": "Set",
+          "actual": 0,
+          "budget": 208145,
+          "variance": -208145,
+          "variancePct": -100
+        },
+        {
+          "month": "out",
+          "label": "Out",
+          "actual": 0,
+          "budget": 266630,
+          "variance": -266630,
+          "variancePct": -100
+        },
+        {
+          "month": "nov",
+          "label": "Nov",
+          "actual": 0,
+          "budget": 516500,
+          "variance": -516500,
+          "variancePct": -100
+        },
+        {
+          "month": "dez",
+          "label": "Dez",
+          "actual": 0,
+          "budget": 1750325,
+          "variance": -1750325,
+          "variancePct": -100
+        }
+      ],
       "actual": 4077094.78,
-      "budget": 1910290,
-      "variance": 2166804.78,
-      "variancePct": 113.42805437917802
+      "budget": 7430687,
+      "variance": -3353592.22,
+      "variancePct": -45.13165767848922
     },
     {
       "key": "deductions",
       "label": "Deduções de receita operacional bruta",
+      "sourceLabel": "(-) DEDUÇÕES DA RECEITA OPERACIONAL BRUTA",
+      "values": [
+        {
+          "month": "jan",
+          "label": "Jan",
+          "actual": -87402.45,
+          "budget": -273339,
+          "variance": 185936.55,
+          "variancePct": 68.02415681626111
+        },
+        {
+          "month": "fev",
+          "label": "Fev",
+          "actual": -33020.04,
+          "budget": -38296,
+          "variance": 5275.959999999999,
+          "variancePct": 13.776791309797364
+        },
+        {
+          "month": "mar",
+          "label": "Mar",
+          "actual": -27844.24,
+          "budget": -68797,
+          "variance": 40952.759999999995,
+          "variancePct": 59.52695611727255
+        },
+        {
+          "month": "abr",
+          "label": "Abr",
+          "actual": -2962.965,
+          "budget": -56191,
+          "variance": 53228.035,
+          "variancePct": 94.72697585022513
+        },
+        {
+          "month": "mai",
+          "label": "Mai",
+          "actual": 0,
+          "budget": -37179,
+          "variance": 37179,
+          "variancePct": 100
+        },
+        {
+          "month": "jun",
+          "label": "Jun",
+          "actual": 0,
+          "budget": -54841,
+          "variance": 54841,
+          "variancePct": 100
+        },
+        {
+          "month": "jul",
+          "label": "Jul",
+          "actual": 0,
+          "budget": -35474,
+          "variance": 35474,
+          "variancePct": 100
+        },
+        {
+          "month": "ago",
+          "label": "Ago",
+          "actual": 0,
+          "budget": -31543,
+          "variance": 31543,
+          "variancePct": 100
+        },
+        {
+          "month": "set",
+          "label": "Set",
+          "actual": 0,
+          "budget": -20186,
+          "variance": 20186,
+          "variancePct": 100
+        },
+        {
+          "month": "out",
+          "label": "Out",
+          "actual": 0,
+          "budget": -29874,
+          "variance": 29874,
+          "variancePct": 100
+        },
+        {
+          "month": "nov",
+          "label": "Nov",
+          "actual": 0,
+          "budget": -57512,
+          "variance": 57512,
+          "variancePct": 100
+        },
+        {
+          "month": "dez",
+          "label": "Dez",
+          "actual": 0,
+          "budget": -269113,
+          "variance": 269113,
+          "variancePct": 100
+        }
+      ],
       "actual": -151229.695,
-      "budget": -273339,
-      "variance": 122109.305,
-      "variancePct": 44.67320982369877
+      "budget": -972345,
+      "variance": 821115.3049999999,
+      "variancePct": 84.44690979024934
     },
     {
       "key": "netRevenue",
       "label": "Receita operacional líquida",
+      "sourceLabel": "(=) RECEITA OPERACIONAL LÍQUIDA",
+      "values": [
+        {
+          "month": "jan",
+          "label": "Jan",
+          "actual": 2417520.71,
+          "budget": 1636951,
+          "variance": 780569.71,
+          "variancePct": 47.68436623942927
+        },
+        {
+          "month": "fev",
+          "label": "Fev",
+          "actual": 644455.96,
+          "budget": 260010,
+          "variance": 384445.95999999996,
+          "variancePct": 147.8581439175416
+        },
+        {
+          "month": "mar",
+          "label": "Mar",
+          "actual": 374256.76,
+          "budget": 552587,
+          "variance": -178330.24,
+          "variancePct": -32.271884789182515
+        },
+        {
+          "month": "abr",
+          "label": "Abr",
+          "actual": 489631.655,
+          "budget": 403393,
+          "variance": 86238.65500000003,
+          "variancePct": 21.37832213251098
+        },
+        {
+          "month": "mai",
+          "label": "Mai",
+          "actual": 0,
+          "budget": 287514,
+          "variance": -287514,
+          "variancePct": -100
+        },
+        {
+          "month": "jun",
+          "label": "Jun",
+          "actual": 0,
+          "budget": 385211,
+          "variance": -385211,
+          "variancePct": -100
+        },
+        {
+          "month": "jul",
+          "label": "Jul",
+          "actual": 0,
+          "budget": 294663,
+          "variance": -294663,
+          "variancePct": -100
+        },
+        {
+          "month": "ago",
+          "label": "Ago",
+          "actual": 0,
+          "budget": 273098,
+          "variance": -273098,
+          "variancePct": -100
+        },
+        {
+          "month": "set",
+          "label": "Set",
+          "actual": 0,
+          "budget": 187959,
+          "variance": -187959,
+          "variancePct": -100
+        },
+        {
+          "month": "out",
+          "label": "Out",
+          "actual": 0,
+          "budget": 236756,
+          "variance": -236756,
+          "variancePct": -100
+        },
+        {
+          "month": "nov",
+          "label": "Nov",
+          "actual": 0,
+          "budget": 458988,
+          "variance": -458988,
+          "variancePct": -100
+        },
+        {
+          "month": "dez",
+          "label": "Dez",
+          "actual": 0,
+          "budget": 1481212,
+          "variance": -1481212,
+          "variancePct": -100
+        }
+      ],
       "actual": 3925865.085,
-      "budget": 1636951,
-      "variance": 2288914.085,
-      "variancePct": 139.82789252702128
+      "budget": 6458342,
+      "variance": -2532476.915,
+      "variancePct": -39.21249316000918
     },
     {
       "key": "grossResult",
       "label": "Resultado operacional bruto",
+      "sourceLabel": "(=) RESULTADO OPERACIONAL BRUTO",
+      "values": [
+        {
+          "month": "jan",
+          "label": "Jan",
+          "actual": 2148474.6,
+          "budget": 1328343,
+          "variance": 820131.6000000001,
+          "variancePct": 61.74095094414621
+        },
+        {
+          "month": "fev",
+          "label": "Fev",
+          "actual": 542050.4,
+          "budget": 191368,
+          "variance": 350682.4,
+          "variancePct": 183.2502821788387
+        },
+        {
+          "month": "mar",
+          "label": "Mar",
+          "actual": 306004.37,
+          "budget": 394961,
+          "variance": -88956.63,
+          "variancePct": -22.522889601758152
+        },
+        {
+          "month": "abr",
+          "label": "Abr",
+          "actual": 38795.715,
+          "budget": 304319,
+          "variance": -265523.28500000003,
+          "variancePct": -87.2516290471512
+        },
+        {
+          "month": "mai",
+          "label": "Mai",
+          "actual": 0,
+          "budget": 215922,
+          "variance": -215922,
+          "variancePct": -100
+        },
+        {
+          "month": "jun",
+          "label": "Jun",
+          "actual": 0,
+          "budget": 300745,
+          "variance": -300745,
+          "variancePct": -100
+        },
+        {
+          "month": "jul",
+          "label": "Jul",
+          "actual": 0,
+          "budget": 215764,
+          "variance": -215764,
+          "variancePct": -100
+        },
+        {
+          "month": "ago",
+          "label": "Ago",
+          "actual": 0,
+          "budget": 197708,
+          "variance": -197708,
+          "variancePct": -100
+        },
+        {
+          "month": "set",
+          "label": "Set",
+          "actual": 0,
+          "budget": 132212,
+          "variance": -132212,
+          "variancePct": -100
+        },
+        {
+          "month": "out",
+          "label": "Out",
+          "actual": 0,
+          "budget": 177155,
+          "variance": -177155,
+          "variancePct": -100
+        },
+        {
+          "month": "nov",
+          "label": "Nov",
+          "actual": 0,
+          "budget": 341993,
+          "variance": -341993,
+          "variancePct": -100
+        },
+        {
+          "month": "dez",
+          "label": "Dez",
+          "actual": 0,
+          "budget": 1284550,
+          "variance": -1284550,
+          "variancePct": -100
+        }
+      ],
       "actual": 3035325.085,
-      "budget": 1328343,
-      "variance": 1706982.085,
-      "variancePct": 128.50461703039048
+      "budget": 5085038,
+      "variance": -2049712.915,
+      "variancePct": -40.30870398608624
     },
     {
       "key": "expenses",
       "label": "Despesas",
+      "sourceLabel": "(-) DESPESAS",
+      "values": [
+        {
+          "month": "jan",
+          "label": "Jan",
+          "actual": -1307039.081,
+          "budget": -934062,
+          "variance": -372977.081,
+          "variancePct": -39.93065567382037
+        },
+        {
+          "month": "fev",
+          "label": "Fev",
+          "actual": -552997.5264,
+          "budget": -357242,
+          "variance": -195755.52639999997,
+          "variancePct": -54.79633592914605
+        },
+        {
+          "month": "mar",
+          "label": "Mar",
+          "actual": -325652.6664,
+          "budget": -427804,
+          "variance": 102151.33360000001,
+          "variancePct": 23.87806883526101
+        },
+        {
+          "month": "abr",
+          "label": "Abr",
+          "actual": 0,
+          "budget": -386020,
+          "variance": 386020,
+          "variancePct": 100
+        },
+        {
+          "month": "mai",
+          "label": "Mai",
+          "actual": 0,
+          "budget": -304934,
+          "variance": 304934,
+          "variancePct": 100
+        },
+        {
+          "month": "jun",
+          "label": "Jun",
+          "actual": 0,
+          "budget": -316045,
+          "variance": 316045,
+          "variancePct": 100
+        },
+        {
+          "month": "jul",
+          "label": "Jul",
+          "actual": 0,
+          "budget": -324388,
+          "variance": 324388,
+          "variancePct": 100
+        },
+        {
+          "month": "ago",
+          "label": "Ago",
+          "actual": 0,
+          "budget": -298741,
+          "variance": 298741,
+          "variancePct": 100
+        },
+        {
+          "month": "set",
+          "label": "Set",
+          "actual": 0,
+          "budget": -245326,
+          "variance": 245326,
+          "variancePct": 100
+        },
+        {
+          "month": "out",
+          "label": "Out",
+          "actual": 0,
+          "budget": -269181,
+          "variance": 269181,
+          "variancePct": 100
+        },
+        {
+          "month": "nov",
+          "label": "Nov",
+          "actual": 0,
+          "budget": -398442,
+          "variance": 398442,
+          "variancePct": 100
+        },
+        {
+          "month": "dez",
+          "label": "Dez",
+          "actual": 0,
+          "budget": -736589,
+          "variance": 736589,
+          "variancePct": 100
+        }
+      ],
       "actual": -2185689.274,
-      "budget": -934062,
-      "variance": -1251627.2740000002,
-      "variancePct": -133.99830782110826
+      "budget": -4998774,
+      "variance": 2813084.726,
+      "variancePct": 56.27549327095003
+    },
+    {
+      "key": "operatingResult",
+      "label": "Resultado operacional líquido",
+      "sourceLabel": "(=) RESULTADO OPERACIONAL LÍQUIDO",
+      "values": [
+        {
+          "month": "jan",
+          "label": "Jan",
+          "actual": 841435.5186,
+          "budget": 394281,
+          "variance": 447154.51859999995,
+          "variancePct": 113.41011070784542
+        },
+        {
+          "month": "fev",
+          "label": "Fev",
+          "actual": -10947.1264,
+          "budget": -165875,
+          "variance": 154927.8736,
+          "variancePct": 93.40037594574227
+        },
+        {
+          "month": "mar",
+          "label": "Mar",
+          "actual": -19648.2964,
+          "budget": -32843,
+          "variance": 13194.7036,
+          "variancePct": 40.17508631976373
+        },
+        {
+          "month": "abr",
+          "label": "Abr",
+          "actual": 38795.715,
+          "budget": -81701,
+          "variance": 120496.715,
+          "variancePct": 147.48499406372017
+        },
+        {
+          "month": "mai",
+          "label": "Mai",
+          "actual": 0,
+          "budget": -89012,
+          "variance": 89012,
+          "variancePct": 100
+        },
+        {
+          "month": "jun",
+          "label": "Jun",
+          "actual": 0,
+          "budget": -15300,
+          "variance": 15300,
+          "variancePct": 100
+        },
+        {
+          "month": "jul",
+          "label": "Jul",
+          "actual": 0,
+          "budget": -108624,
+          "variance": 108624,
+          "variancePct": 100
+        },
+        {
+          "month": "ago",
+          "label": "Ago",
+          "actual": 0,
+          "budget": -101033,
+          "variance": 101033,
+          "variancePct": 100
+        },
+        {
+          "month": "set",
+          "label": "Set",
+          "actual": 0,
+          "budget": -113115,
+          "variance": 113115,
+          "variancePct": 100
+        },
+        {
+          "month": "out",
+          "label": "Out",
+          "actual": 0,
+          "budget": -92027,
+          "variance": 92027,
+          "variancePct": 100
+        },
+        {
+          "month": "nov",
+          "label": "Nov",
+          "actual": 0,
+          "budget": -56449,
+          "variance": 56449,
+          "variancePct": 100
+        },
+        {
+          "month": "dez",
+          "label": "Dez",
+          "actual": 0,
+          "budget": 547962,
+          "variance": -547962,
+          "variancePct": -100
+        }
+      ],
+      "actual": 849635.8108,
+      "budget": 86264,
+      "variance": 763371.8108,
+      "variancePct": 884.9251261244552
+    },
+    {
+      "key": "finalResult",
+      "label": "Resultado líquido final pós IRPJ/CSLL",
+      "sourceLabel": "(=) RESULTADO FINAL",
+      "values": [
+        {
+          "month": "jan",
+          "label": "Jan",
+          "actual": 1368243.987,
+          "budget": 508329,
+          "variance": 859914.987,
+          "variancePct": 169.16504606268774
+        },
+        {
+          "month": "fev",
+          "label": "Fev",
+          "actual": 88901.16733,
+          "budget": -86175,
+          "variance": 175076.16733,
+          "variancePct": 203.16352460690456
+        },
+        {
+          "month": "mar",
+          "label": "Mar",
+          "actual": 100578.1548,
+          "budget": 32072,
+          "variance": 68506.1548,
+          "variancePct": 213.60113120478923
+        },
+        {
+          "month": "abr",
+          "label": "Abr",
+          "actual": 38795.715,
+          "budget": -2840,
+          "variance": 41635.715,
+          "variancePct": 1466.0463028169013
+        },
+        {
+          "month": "mai",
+          "label": "Mai",
+          "actual": 0,
+          "budget": -26440,
+          "variance": 26440,
+          "variancePct": 100
+        },
+        {
+          "month": "jun",
+          "label": "Jun",
+          "actual": 0,
+          "budget": 66189,
+          "variance": -66189,
+          "variancePct": -100
+        },
+        {
+          "month": "jul",
+          "label": "Jul",
+          "actual": 0,
+          "budget": -33578,
+          "variance": 33578,
+          "variancePct": 100
+        },
+        {
+          "month": "ago",
+          "label": "Ago",
+          "actual": 0,
+          "budget": -26024,
+          "variance": 26024,
+          "variancePct": 100
+        },
+        {
+          "month": "set",
+          "label": "Set",
+          "actual": 0,
+          "budget": -46205,
+          "variance": 46205,
+          "variancePct": 100
+        },
+        {
+          "month": "out",
+          "label": "Out",
+          "actual": 0,
+          "budget": -8856,
+          "variance": 8856,
+          "variancePct": 100
+        },
+        {
+          "month": "nov",
+          "label": "Nov",
+          "actual": 0,
+          "budget": 23119,
+          "variance": -23119,
+          "variancePct": -100
+        },
+        {
+          "month": "dez",
+          "label": "Dez",
+          "actual": 0,
+          "budget": 629560,
+          "variance": -629560,
+          "variancePct": -100
+        }
+      ],
+      "actual": 1596519.024,
+      "budget": 1029152,
+      "variance": 567367.024,
+      "variancePct": 55.12956531202388
     }
   ],
   "comparison": [
