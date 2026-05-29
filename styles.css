@@ -83,6 +83,28 @@ h2 {
   box-shadow: var(--shadow);
 }
 
+.hero-actions {
+  display: grid;
+  gap: 10px;
+  min-width: 270px;
+}
+
+.refresh-button {
+  min-height: 44px;
+  border: 1px solid var(--ink);
+  border-radius: 8px;
+  background: var(--ink);
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+
+.refresh-button:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
 .source-box span,
 .source-box strong,
 .source-box small {
@@ -304,6 +326,7 @@ canvas {
     display: grid;
   }
 
+  .hero-actions,
   .source-box {
     min-width: 0;
     width: 100%;
