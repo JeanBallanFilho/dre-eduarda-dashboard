@@ -7,6 +7,7 @@ const els = {
   monthFilter: document.querySelector("#monthFilter"),
   categoryFilter: document.querySelector("#categoryFilter"),
   metricSelect: document.querySelector("#metricSelect"),
+  statementLineSelect: document.querySelector("#statementLineSelect"),
   statusBanner: document.querySelector("#statusBanner"),
   refreshButton: document.querySelector("#refreshButton"),
   downloadButton: document.querySelector("#downloadButton"),
@@ -21,16 +22,33 @@ const els = {
   timelineSubtitle: document.querySelector("#timelineSubtitle"),
   categorySubtitle: document.querySelector("#categorySubtitle"),
   compositionSubtitle: document.querySelector("#compositionSubtitle"),
+  cmvSubtitle: document.querySelector("#cmvSubtitle"),
   tableSubtitle: document.querySelector("#tableSubtitle"),
+  statementSubtitle: document.querySelector("#statementSubtitle"),
+  statementHead: document.querySelector("#statementHead"),
+  statementBody: document.querySelector("#statementBody"),
   tableHead: document.querySelector("#tableHead"),
   tableBody: document.querySelector("#tableBody"),
   donutLegend: document.querySelector("#donutLegend")
 };
 
+const dreStatementLines = [
+  { key: "grossRevenue", label: "Receita operacional bruta", match: "RECEITA OPERACIONAL BRUTA" },
+  { key: "deductions", label: "Deducoes da receita operacional bruta", match: "DEDUCOES DA RECEITA OPERACIONAL BRUTA" },
+  { key: "netRevenue", label: "Receita operacional liquida", match: "RECEITA OPERACIONAL LIQUIDA" },
+  { key: "grossResult", label: "Resultado operacional bruto", match: "RESULTADO OPERACIONAL BRUTO" },
+  { key: "expenses", label: "Despesas", match: "DESPESAS" },
+  { key: "operatingResult", label: "Resultado operacional liquido", match: "RESULTADO OPERACIONAL LIQUIDO" },
+  { key: "beforeTax", label: "Resultado final antes do IRPJ e CSLL", match: "RESULTADO FINAL ANTES DO IRPJ E CSLL" },
+  { key: "beforeParticipation", label: "Resultado final antes das participacoes", match: "RESULTADO FINAL ANTES DAS PARTICIPACOES" },
+  { key: "finalResult", label: "Resultado final liquido", match: "RESULTADO LIQUIDO FINAL" }
+];
+
 let state = {
   rows: [],
   columns: [],
   profile: {},
+  statementRows: [],
   filteredRows: []
 };
 
@@ -288,6 +306,7 @@ function setRows(rows) {
   state.rows = rows;
   state.columns = Object.keys(rows[0] || {});
   state.profile = profileData(rows);
+  state.statementRows = findStatementRows(rows);
   state.filteredRows = rows;
   setupFilters();
   render();
@@ -322,6 +341,9 @@ function setupFilters() {
   if (!categoryColumns.length && !preferredCategory) {
     fillSelect(els.categoryFilter, [["__all", "Todos os registros"]], "__all");
   }
+
+  const statementOptions = state.statementRows.map((item) => [item.key, item.label]);
+  fillSelect(els.statementLineSelect, statementOptions, statementOptions[0]?.[0] || "");
 }
 
 function fillSelect(select, options, selected) {
@@ -347,46 +369,74 @@ function applyFilters() {
 function render() {
   applyFilters();
   renderKpis();
+  renderStatement();
   renderTimeline();
   renderCategoryChart();
   renderDonut();
+  renderCmvChart();
   renderTable();
 }
 
 function renderKpis() {
   const metric = els.metricSelect.value;
-  const values = metric === "__count" ? [] : state.filteredRows.map((row) => parseNumber(row[metric])).filter(Number.isFinite);
+  const selected = getSelectedStatementLine();
+  const sourceRows = selected?.rows || [];
+  const values = metric === "__count" ? [] : sourceRows.map((row) => parseNumber(row[metric])).filter(Number.isFinite);
   const sum = values.reduce((total, value) => total + value, 0);
-  const avg = values.length ? sum / values.length : state.filteredRows.length;
-  const coverage = metric === "__count" ? 100 : Math.round((values.length / Math.max(1, state.filteredRows.length)) * 100);
+  const avg = values.length ? sum / values.length : sourceRows.length;
+  const coverage = metric === "__count" ? 100 : Math.round((values.length / Math.max(1, sourceRows.length)) * 100);
 
-  els.kpiRows.textContent = formatNumber(state.filteredRows.length);
-  els.kpiRowsNote.textContent = `${formatNumber(state.rows.length)} no total da planilha`;
-  els.kpiSum.textContent = metric === "__count" ? formatNumber(state.filteredRows.length) : formatNumber(sum);
-  els.kpiSumNote.textContent = metric === "__count" ? "Contagem de linhas filtradas" : metric;
+  els.kpiRows.textContent = formatNumber(state.statementRows.length);
+  els.kpiRowsNote.textContent = "Linhas executivas da DRE";
+  els.kpiSum.textContent = metric === "__count" ? formatNumber(sourceRows.length) : formatNumber(sum);
+  els.kpiSumNote.textContent = selected ? selected.label : metric;
   els.kpiAvg.textContent = formatNumber(avg);
   els.kpiCoverage.textContent = `${coverage}%`;
-  els.kpiCoverageNote.textContent = metric === "__count" ? "Base de registros" : "Registros com valor numerico";
+  els.kpiCoverageNote.textContent = metric === "__count" ? "Meses exibidos" : "Meses com valor numerico";
 }
 
 function renderTimeline() {
-  const dateColumn = state.profile.dateColumn;
   const metric = els.metricSelect.value;
-  const groups = new Map();
+  const selected = getSelectedStatementLine();
 
-  state.filteredRows.forEach((row) => {
-    const key = dateColumn ? monthKey(parseDate(row[dateColumn])) : "2026";
-    const label = key || "Sem periodo";
-    groups.set(label, (groups.get(label) || 0) + metricValue(row, metric));
-  });
+  const data = selected
+    ? selected.rows.map((row) => ({
+        label: row.Mes || formatMonthKey(monthKey(parseDate(row.Data))),
+        value: metricValue(row, metric)
+      }))
+    : [];
 
-  const data = [...groups.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([key, value]) => ({
-    label: key === "2026" ? "2026" : formatMonthKey(key),
-    value
-  }));
-
-  els.timelineSubtitle.textContent = dateColumn ? `Agrupado por ${dateColumn}` : "Sem coluna de data identificada; exibindo consolidado";
+  els.timelineSubtitle.textContent = selected
+    ? `Linha: ${selected.label} | Indicador: ${metric}`
+    : "Selecione uma linha da DRE";
   drawBarChart(document.querySelector("#timelineChart"), data, { horizontal: false, color: "#356b9a" });
+}
+
+function renderStatement() {
+  const metric = els.metricSelect.value;
+  const months = getStatementMonths();
+  els.statementSubtitle.textContent = `Indicador: ${metric}. Valores lidos diretamente das linhas sintéticas da planilha.`;
+  els.statementHead.innerHTML = `
+    <tr>
+      <th>Linha da DRE</th>
+      ${months.map((month) => `<th>${escapeHtml(month.label)}</th>`).join("")}
+      <th>Total exibido</th>
+    </tr>
+  `;
+  els.statementBody.innerHTML = state.statementRows.map((item) => {
+    const values = months.map((month) => {
+      const row = item.rows.find((candidate) => monthKey(parseDate(candidate.Data)) === month.key);
+      return row ? metricValue(row, metric) : 0;
+    });
+    const total = values.reduce((sum, value) => sum + value, 0);
+    return `
+      <tr class="${item.key === "finalResult" ? "statement-row-total" : ""}">
+        <td>${escapeHtml(item.label)}</td>
+        ${values.map((value) => `<td>${formatCurrencyLike(value)}</td>`).join("")}
+        <td>${formatCurrencyLike(total)}</td>
+      </tr>
+    `;
+  }).join("");
 }
 
 function renderCategoryChart() {
@@ -412,6 +462,27 @@ function renderDonut() {
   `).join("");
 }
 
+function renderCmvChart() {
+  const months = getStatementMonths();
+  const cmvRows = [
+    findRowsByAccount("CMV"),
+    findRowsByAccount("CMV BEBIDAS")
+  ].filter((item) => item.rows.length);
+
+  const series = cmvRows.map((item) => ({
+    label: item.label,
+    values: months.map((month) => {
+      const row = item.rows.find((candidate) => monthKey(parseDate(candidate.Data)) === month.key);
+      return row ? metricValue(row, "Realizado 2026") : 0;
+    })
+  }));
+
+  els.cmvSubtitle.textContent = series.length
+    ? "Valores percentuais lidos diretamente das linhas CMV e CMV Bebidas"
+    : "Linhas de CMV nao encontradas";
+  drawGroupedBarChart(document.querySelector("#cmvChart"), months.map((month) => month.label), series, { suffix: "%" });
+}
+
 function aggregateBy(column, metric) {
   const groups = new Map();
   state.filteredRows.forEach((row) => {
@@ -427,6 +498,44 @@ function metricValue(row, metric) {
   if (!metric || metric === "__count") return 1;
   const value = parseNumber(row[metric]);
   return Number.isFinite(value) ? value : 0;
+}
+
+function findStatementRows(rows) {
+  return dreStatementLines.map((line) => {
+    const matches = rows.filter((row) => normalizeText(row.Conta) === line.match);
+    return { ...line, rows: matches };
+  }).filter((line) => line.rows.length);
+}
+
+function getSelectedStatementLine() {
+  return state.statementRows.find((line) => line.key === els.statementLineSelect.value) || state.statementRows[0];
+}
+
+function findRowsByAccount(match) {
+  const rows = state.rows.filter((row) => normalizeText(row.Conta) === match);
+  const first = rows[0]?.Conta || match;
+  return { label: cleanAccount(first), rows };
+}
+
+function getStatementMonths() {
+  const monthMap = new Map();
+  state.rows.forEach((row) => {
+    const key = monthKey(parseDate(row.Data));
+    if (key && row.Mes) monthMap.set(key, row.Mes);
+  });
+  return [...monthMap.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, label]) => ({ key, label }));
+}
+
+function normalizeText(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/^[()=+\-\s]+/, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toUpperCase();
 }
 
 function renderTable() {
@@ -570,6 +679,85 @@ function drawDonutChart(canvas, data) {
   ctx.restore();
 }
 
+function drawGroupedBarChart(canvas, labels, series, options = {}) {
+  const ctx = setupCanvas(canvas);
+  const { width, height } = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const w = width;
+  const h = height || 320;
+  ctx.clearRect(0, 0, w * dpr, h * dpr);
+  ctx.save();
+  ctx.scale(dpr, dpr);
+
+  const values = series.flatMap((item) => item.values);
+  const max = Math.max(1, ...values);
+  const padding = { top: 26, right: 24, bottom: 72, left: 52 };
+  const chartW = w - padding.left - padding.right;
+  const chartH = h - padding.top - padding.bottom;
+  const groupGap = 14;
+  const groupW = Math.max(24, (chartW - groupGap * (labels.length - 1)) / Math.max(1, labels.length));
+  const barGap = 4;
+  const barW = Math.max(8, (groupW - barGap * Math.max(0, series.length - 1)) / Math.max(1, series.length));
+
+  ctx.font = "12px Inter, sans-serif";
+  ctx.fillStyle = "#667276";
+  ctx.strokeStyle = "#e2e5df";
+  ctx.lineWidth = 1;
+
+  if (!labels.length || !series.length) {
+    ctx.fillText("Sem dados de CMV para exibir", padding.left, padding.top + 24);
+    ctx.restore();
+    return;
+  }
+
+  [0, 0.25, 0.5, 0.75, 1].forEach((step) => {
+    const y = padding.top + chartH - chartH * step;
+    ctx.beginPath();
+    ctx.moveTo(padding.left, y);
+    ctx.lineTo(padding.left + chartW, y);
+    ctx.stroke();
+  });
+
+  labels.forEach((label, monthIndex) => {
+    const groupX = padding.left + monthIndex * (groupW + groupGap);
+    series.forEach((item, seriesIndex) => {
+      const value = item.values[monthIndex] || 0;
+      const barH = (value / max) * chartH;
+      const x = groupX + seriesIndex * (barW + barGap);
+      const y = padding.top + chartH - barH;
+      ctx.fillStyle = palette[seriesIndex % palette.length];
+      roundRect(ctx, x, y, barW, barH, 5);
+      ctx.fill();
+      ctx.fillStyle = "#1d2528";
+      ctx.font = "700 10px Inter, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(`${formatNumber(value)}${options.suffix || ""}`, x + barW / 2, y > padding.top + 14 ? y - 5 : y + 13);
+    });
+
+    ctx.save();
+    ctx.translate(groupX + groupW / 2, padding.top + chartH + 18);
+    ctx.rotate(-Math.PI / 5);
+    ctx.fillStyle = "#667276";
+    ctx.font = "12px Inter, sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText(truncate(label, 12), 0, 0);
+    ctx.restore();
+  });
+
+  series.forEach((item, index) => {
+    const x = padding.left + index * 150;
+    const y = h - 18;
+    ctx.fillStyle = palette[index % palette.length];
+    ctx.fillRect(x, y - 10, 12, 12);
+    ctx.fillStyle = "#495357";
+    ctx.textAlign = "left";
+    ctx.font = "700 12px Inter, sans-serif";
+    ctx.fillText(item.label, x + 18, y);
+  });
+
+  ctx.restore();
+}
+
 function setupCanvas(canvas) {
   const rect = canvas.getBoundingClientRect();
   const dpr = window.devicePixelRatio || 1;
@@ -607,6 +795,13 @@ function formatMonthKey(key) {
 
 function formatNumber(value) {
   return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: value > 100 ? 0 : 1 }).format(value || 0);
+}
+
+function formatCurrencyLike(value) {
+  const formatted = new Intl.NumberFormat("pt-BR", {
+    maximumFractionDigits: 0
+  }).format(Math.abs(value || 0));
+  return value < 0 ? `(${formatted})` : formatted;
 }
 
 function compactNumber(value) {
@@ -661,7 +856,7 @@ function csvCell(value) {
   return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
-[els.searchInput, els.monthFilter, els.categoryFilter, els.metricSelect].forEach((element) => {
+[els.searchInput, els.monthFilter, els.categoryFilter, els.metricSelect, els.statementLineSelect].forEach((element) => {
   element.addEventListener("input", render);
   element.addEventListener("change", render);
 });
