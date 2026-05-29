@@ -3,177 +3,92 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#f6f3ee" />
-    <title>DRE Eduarda | Dashboard 2026</title>
+    <meta name="theme-color" content="#f7f5f0" />
+    <title>DRE Altar 2026 | Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="app-shell">
-      <aside class="sidebar" aria-label="Navegacao principal">
-        <div class="brand">
-          <span class="brand-mark">DE</span>
-          <div>
-            <strong>DRE Eduarda</strong>
-            <span>Consolidado 2026</span>
-          </div>
+    <main class="dre-app">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Dashboard executivo</p>
+          <h1>DRE Altar 2026</h1>
+          <p class="subhead">Valores lidos diretamente das linhas consolidadas da aba 2026.</p>
         </div>
-        <nav class="nav-list">
-          <a class="active" href="#visao-geral">Visao geral</a>
-          <a href="#evolucao">Evolucao</a>
-          <a href="#detalhes">Detalhes</a>
-        </nav>
-        <div class="sync-card">
+        <div class="source-box">
           <span>Fonte</span>
-          <strong>Google Sheets publicado</strong>
-          <small id="lastUpdated">Carregando dados...</small>
+          <strong id="sourceLabel">Excel | aba 2026</strong>
+          <small id="updatedLabel">Carregando...</small>
         </div>
-      </aside>
+      </header>
 
-      <main class="content">
-        <header class="topbar">
+      <section class="kpi-grid" aria-label="Indicadores principais">
+        <article class="kpi-card accent-gold">
+          <span>Receita bruta</span>
+          <strong id="grossRevenueKpi">--</strong>
+          <small>Acumulado da linha Receita Operacional Bruta</small>
+        </article>
+        <article class="kpi-card accent-rose">
+          <span>Despesas</span>
+          <strong id="expensesKpi">--</strong>
+          <small>Acumulado da linha Despesas</small>
+        </article>
+        <article class="kpi-card accent-green">
+          <span>Resultado final</span>
+          <strong id="finalResultKpi">--</strong>
+          <small>Acumulado da linha Resultado Final Líquido</small>
+        </article>
+        <article class="kpi-card accent-blue">
+          <span>CMV geral</span>
+          <strong id="cmvKpi">--</strong>
+          <small>Percentual acumulado informado na planilha</small>
+        </article>
+      </section>
+
+      <section class="panel statement-panel">
+        <div class="panel-header">
           <div>
-            <p class="eyebrow">Painel executivo</p>
-            <h1>Dashboard consolidado 2026</h1>
+            <h2>Demonstrativo simplificado</h2>
+            <p>Linhas principais da DRE, sem somar subcontas.</p>
           </div>
-          <button class="icon-button" id="refreshButton" type="button" aria-label="Atualizar dados" title="Atualizar dados">
-            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 1-15.4 6.4M3 12A9 9 0 0 1 18.4 5.6M18 3v4h-4M6 21v-4h4"/></svg>
-          </button>
-        </header>
+        </div>
+        <div class="table-wrap">
+          <table class="statement-table">
+            <thead id="statementHead"></thead>
+            <tbody id="statementBody"></tbody>
+          </table>
+        </div>
+      </section>
 
-        <section class="filter-bar" aria-label="Filtros do dashboard">
-          <label>
-            <span>Busca</span>
-            <input id="searchInput" type="search" placeholder="Pesquisar registros" autocomplete="off" />
-          </label>
-          <label>
-            <span>Periodo</span>
-            <select id="monthFilter"></select>
-          </label>
-          <label>
-            <span>Grupo</span>
-            <select id="categoryFilter"></select>
-          </label>
-          <label>
-            <span>Indicador</span>
-            <select id="metricSelect"></select>
-          </label>
-          <label>
-            <span>Linha DRE</span>
-            <select id="statementLineSelect"></select>
-          </label>
-        </section>
-
-        <section class="status-banner" id="statusBanner" hidden></section>
-
-        <section class="kpi-grid" id="visao-geral" aria-label="Indicadores principais">
-          <article class="kpi-card">
-            <span>Total de registros</span>
-            <strong id="kpiRows">--</strong>
-            <small id="kpiRowsNote">Registros filtrados</small>
-          </article>
-          <article class="kpi-card accent-green">
-            <span>Soma do indicador</span>
-            <strong id="kpiSum">--</strong>
-            <small id="kpiSumNote">Selecione um indicador</small>
-          </article>
-          <article class="kpi-card accent-blue">
-            <span>Media</span>
-            <strong id="kpiAvg">--</strong>
-            <small>Media dos registros numericos</small>
-          </article>
-          <article class="kpi-card accent-rose">
-            <span>Cobertura</span>
-            <strong id="kpiCoverage">--</strong>
-            <small id="kpiCoverageNote">Valores preenchidos</small>
-          </article>
-        </section>
-
-        <section class="panel statement-panel" aria-label="Demonstrativo principal da DRE">
-          <div class="panel-header table-actions">
+      <section class="dashboard-grid">
+        <article class="panel wide">
+          <div class="panel-header">
             <div>
-              <h2>Demonstrativo executivo</h2>
-              <p id="statementSubtitle">Linhas principais da DRE, sem somar subcontas</p>
+              <h2>Receita, despesas e resultado</h2>
+              <p>Comparativo mensal das linhas consolidadas.</p>
             </div>
           </div>
-          <div class="table-wrap">
-            <table class="statement-table">
-              <thead id="statementHead"></thead>
-              <tbody id="statementBody"></tbody>
-            </table>
+          <div class="chart-area">
+            <canvas id="mainChart" width="1000" height="360"></canvas>
           </div>
-        </section>
+        </article>
 
-        <section class="dashboard-grid" id="evolucao">
-          <article class="panel wide">
-            <div class="panel-header">
-              <div>
-                <h2>Evolucao mensal</h2>
-                <p id="timelineSubtitle">Distribuicao por periodo identificado</p>
-              </div>
-            </div>
-            <div class="chart-area">
-              <canvas id="timelineChart" width="900" height="360"></canvas>
-            </div>
-          </article>
-
-          <article class="panel">
-            <div class="panel-header">
-              <div>
-                <h2>Principais grupos</h2>
-                <p id="categorySubtitle">Ranking pelo campo mais relevante</p>
-              </div>
-            </div>
-            <div class="chart-area compact">
-              <canvas id="categoryChart" width="520" height="360"></canvas>
-            </div>
-          </article>
-
-          <article class="panel">
-            <div class="panel-header">
-              <div>
-                <h2>Composicao</h2>
-                <p id="compositionSubtitle">Participacao dos grupos</p>
-              </div>
-            </div>
-            <div class="donut-wrap">
-              <canvas id="donutChart" width="320" height="320"></canvas>
-              <div id="donutLegend" class="legend"></div>
-            </div>
-          </article>
-
-          <article class="panel wide">
-            <div class="panel-header">
-              <div>
-                <h2>Comparativo CMV</h2>
-                <p id="cmvSubtitle">CMV total e CMV bebidas por mes</p>
-              </div>
-            </div>
-            <div class="chart-area">
-              <canvas id="cmvChart" width="900" height="340"></canvas>
-            </div>
-          </article>
-        </section>
-
-        <section class="panel table-panel" id="detalhes">
-          <div class="panel-header table-actions">
+        <article class="panel wide">
+          <div class="panel-header">
             <div>
-              <h2>Registros</h2>
-              <p id="tableSubtitle">Linhas mais recentes ou primeiros registros disponiveis</p>
+              <h2>CMV geral</h2>
+              <p>Percentual mês a mês informado na linha CMV.</p>
             </div>
-            <button class="text-button" id="downloadButton" type="button">Baixar CSV filtrado</button>
           </div>
-          <div class="table-wrap">
-            <table>
-              <thead id="tableHead"></thead>
-              <tbody id="tableBody"></tbody>
-            </table>
+          <div class="chart-area">
+            <canvas id="cmvChart" width="1000" height="320"></canvas>
           </div>
-        </section>
-      </main>
-    </div>
+        </article>
+      </section>
+    </main>
 
     <script src="app.js"></script>
   </body>
