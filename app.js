@@ -1,761 +1,214 @@
-const SHEET_CSV_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQe1qVYU1Phvbnjs3-X1lSNYCvmZFz78TqSj4VowqilN6p_FdvqLxYoUboU8JhXh8IlBBsaOkH2cF61/pub?gid=814918860&single=true&output=csv";
+const DATA_URL = "data/dre-altar-2026.json";
 
-const palette = ["#2f7d57", "#356b9a", "#b85661", "#c7922f", "#168184", "#7b5ea8", "#d06f3c", "#5b6770"];
+const palette = {
+  revenue: "#2f7d57",
+  expenses: "#b85661",
+  result: "#356b9a",
+  cmv: "#c7922f",
+  grid: "#e4e1d9",
+  ink: "#172126",
+  muted: "#667276"
+};
+
 const els = {
-  searchInput: document.querySelector("#searchInput"),
-  monthFilter: document.querySelector("#monthFilter"),
-  categoryFilter: document.querySelector("#categoryFilter"),
-  metricSelect: document.querySelector("#metricSelect"),
-  statementLineSelect: document.querySelector("#statementLineSelect"),
-  statusBanner: document.querySelector("#statusBanner"),
-  refreshButton: document.querySelector("#refreshButton"),
-  downloadButton: document.querySelector("#downloadButton"),
-  lastUpdated: document.querySelector("#lastUpdated"),
-  kpiRows: document.querySelector("#kpiRows"),
-  kpiRowsNote: document.querySelector("#kpiRowsNote"),
-  kpiSum: document.querySelector("#kpiSum"),
-  kpiSumNote: document.querySelector("#kpiSumNote"),
-  kpiAvg: document.querySelector("#kpiAvg"),
-  kpiCoverage: document.querySelector("#kpiCoverage"),
-  kpiCoverageNote: document.querySelector("#kpiCoverageNote"),
-  timelineSubtitle: document.querySelector("#timelineSubtitle"),
-  categorySubtitle: document.querySelector("#categorySubtitle"),
-  compositionSubtitle: document.querySelector("#compositionSubtitle"),
-  cmvSubtitle: document.querySelector("#cmvSubtitle"),
-  tableSubtitle: document.querySelector("#tableSubtitle"),
-  statementSubtitle: document.querySelector("#statementSubtitle"),
+  sourceLabel: document.querySelector("#sourceLabel"),
+  updatedLabel: document.querySelector("#updatedLabel"),
+  grossRevenueKpi: document.querySelector("#grossRevenueKpi"),
+  expensesKpi: document.querySelector("#expensesKpi"),
+  finalResultKpi: document.querySelector("#finalResultKpi"),
+  cmvKpi: document.querySelector("#cmvKpi"),
   statementHead: document.querySelector("#statementHead"),
   statementBody: document.querySelector("#statementBody"),
-  tableHead: document.querySelector("#tableHead"),
-  tableBody: document.querySelector("#tableBody"),
-  donutLegend: document.querySelector("#donutLegend")
+  mainChart: document.querySelector("#mainChart"),
+  cmvChart: document.querySelector("#cmvChart")
 };
 
-const dreStatementLines = [
-  { key: "grossRevenue", label: "Receita operacional bruta", match: "RECEITA OPERACIONAL BRUTA" },
-  { key: "deductions", label: "Deduções de receita operacional bruta", match: "DEDUCOES DA RECEITA OPERACIONAL BRUTA" },
-  { key: "netRevenue", label: "Receita operacional líquida", match: "RECEITA OPERACIONAL LIQUIDA" },
-  { key: "grossResult", label: "Resultado operacional bruto", match: "RESULTADO OPERACIONAL BRUTO" },
-  { key: "expenses", label: "Despesas", match: "DESPESAS" },
-  { key: "operatingResult", label: "Resultado operacional líquido", match: "RESULTADO OPERACIONAL LIQUIDO" },
-  { key: "beforeTax", label: "Resultado final antes do IR e CSLL", match: "RESULTADO FINAL ANTES DO IRPJ E CSLL" },
-  { key: "beforeParticipation", label: "Resultado final antes das participações", match: "RESULTADO FINAL ANTES DAS PARTICIPACOES" },
-  { key: "finalResult", label: "Resultado final líquido", match: "RESULTADO LIQUIDO FINAL" }
-];
+let dashboardData;
 
-let state = {
-  rows: [],
-  columns: [],
-  profile: {},
-  statementRows: [],
-  filteredRows: []
-};
-
-const sampleCsv = `Data,Unidade,Etapa,Status,Quantidade,Valor
-2026-01-10,Escola Norte,Formacao,Concluido,42,12500
-2026-02-15,Escola Sul,Acompanhamento,Em andamento,31,9800
-2026-03-18,Escola Leste,Formacao,Concluido,58,17100
-2026-04-09,Escola Oeste,Busca ativa,Pendente,19,4400
-2026-05-23,Escola Norte,Acompanhamento,Concluido,36,11200`;
-
-function parseCsv(text) {
-  const rows = parseCsvRows(text);
-  const headers = dedupeHeaders(rows.shift() || []);
-  return rows.map((cells) => Object.fromEntries(headers.map((header, index) => [header, (cells[index] || "").trim()])));
-}
-
-function parseCsvRows(text) {
-  const rows = [];
-  let row = [];
-  let value = "";
-  let quoted = false;
-
-  for (let index = 0; index < text.length; index += 1) {
-    const char = text[index];
-    const next = text[index + 1];
-
-    if (char === '"' && quoted && next === '"') {
-      value += '"';
-      index += 1;
-    } else if (char === '"') {
-      quoted = !quoted;
-    } else if (char === "," && !quoted) {
-      row.push(value);
-      value = "";
-    } else if ((char === "\n" || char === "\r") && !quoted) {
-      if (char === "\r" && next === "\n") index += 1;
-      row.push(value);
-      if (row.some((cell) => cell.trim() !== "")) rows.push(row);
-      row = [];
-      value = "";
-    } else {
-      value += char;
-    }
-  }
-
-  row.push(value);
-  if (row.some((cell) => cell.trim() !== "")) rows.push(row);
-  return rows;
-}
-
-function transformCsv(text) {
-  const matrix = parseCsvRows(text);
-  if (looksLikeFinancialDre(matrix)) {
-    return normalizeFinancialDre(matrix);
-  }
-  return parseCsv(text);
-}
-
-function looksLikeFinancialDre(matrix) {
-  const header = (matrix[1] || []).join(" ").toLowerCase();
-  const body = matrix.slice(0, 12).flat().join(" ").toLowerCase();
-  return header.includes("2025 x 2026") && body.includes("receita operacional");
-}
-
-function normalizeFinancialDre(matrix) {
-  const header = matrix[1] || [];
-  const monthColumns = [];
-  const monthNames = {
-    jan: "Janeiro",
-    fev: "Fevereiro",
-    mar: "Marco",
-    abr: "Abril",
-    mai: "Maio",
-    jun: "Junho",
-    jul: "Julho",
-    ago: "Agosto",
-    set: "Setembro",
-    out: "Outubro",
-    nov: "Novembro",
-    dez: "Dezembro"
-  };
-
-  header.forEach((cell, index) => {
-    const lower = String(cell || "").toLowerCase();
-    const match = lower.match(/(jan|fev|mar|abr|mai|jun|jul|ago|set|out|nov|dez)[a-z.]*-?26/);
-    if (match) {
-      monthColumns.push({ index, key: match[1], label: monthNames[match[1]] });
-    }
-  });
-
-  const rows = [];
-  let currentGroup = "DRE";
-
-  matrix.slice(3).forEach((line) => {
-    const account = String(line[1] || "").trim();
-    if (!account) return;
-    if (/^\s*[\(\+=-]/.test(account)) {
-      currentGroup = cleanAccount(account);
-    }
-
-    monthColumns.forEach(({ index, label }, monthIndex) => {
-      const realized2026 = line[index] || "";
-      const realized2025 = line[index + 1] || "";
-      const variation = line[index + 2] || "";
-      const budget = monthIndex === 0 ? line[index + 3] || "" : "";
-      const budgetVariation = monthIndex === 0 ? line[index + 4] || "" : "";
-
-      if (!realized2026 && !realized2025 && !variation && !budget) return;
-
-      rows.push({
-        Data: `2026-${String(monthIndex + 1).padStart(2, "0")}-01`,
-        Mes: label,
-        Conta: cleanAccount(account),
-        Grupo: currentGroup,
-        Nivel: accountDepth(account),
-        Tipo: accountType(account, currentGroup),
-        "Realizado 2026": realized2026,
-        "Realizado 2025": realized2025,
-        "Variacao 25/26": variation,
-        Orcado: budget,
-        "Orcado x Realizado": budgetVariation,
-        "Media 2025": line[2] || "",
-        Acumulado: line[52] || "",
-        Media: line[55] || "",
-        "Variacao Media 25/26": line[56] || ""
-      });
-    });
-  });
-
-  return rows;
-}
-
-function cleanAccount(value) {
-  return String(value || "").replace(/\s+/g, " ").trim();
-}
-
-function accountDepth(account) {
-  const code = String(account || "").match(/^(\d+(?:\.\d+)*)/);
-  return code ? code[1].split(".").length : 0;
-}
-
-function accountType(account, group) {
-  const text = `${account} ${group}`.toLowerCase();
-  if (text.includes("receita")) return "Receita";
-  if (text.includes("custo")) return "Custo";
-  if (text.includes("despesa")) return "Despesa";
-  if (text.includes("lucro") || text.includes("resultado")) return "Resultado";
-  if (text.includes("devolu")) return "Devolucao";
-  return "Outros";
-}
-
-function dedupeHeaders(headers) {
-  const seen = new Map();
-  return headers.map((header, index) => {
-    const base = (header || `Coluna ${index + 1}`).trim();
-    const count = seen.get(base) || 0;
-    seen.set(base, count + 1);
-    return count ? `${base} ${count + 1}` : base;
-  });
-}
-
-function parseNumber(value) {
-  if (value === null || value === undefined) return NaN;
-  const raw = String(value).trim();
-  if (!raw) return NaN;
-  if (/^[-–—]+$/.test(raw) || raw.startsWith("#")) return NaN;
-  const negative = /^\(.+\)$/.test(raw);
-  const cleaned = raw
-    .replace(/[R$\s%()]/g, "")
-    .replace(/\.(?=\d{3}(\D|$))/g, "")
-    .replace(",", ".")
-    .replace(/[^\d.-]/g, "");
-  if (!cleaned || cleaned === "-" || cleaned === ".") return NaN;
-  const parsed = Number(cleaned);
-  return negative ? -Math.abs(parsed) : parsed;
-}
-
-function parseDate(value) {
-  const text = String(value || "").trim();
-  if (!text) return null;
-  const isoDateOnly = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (isoDateOnly) {
-    const date = new Date(Number(isoDateOnly[1]), Number(isoDateOnly[2]) - 1, Number(isoDateOnly[3]));
-    return Number.isNaN(date.getTime()) ? null : date;
-  }
-  const br = text.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})/);
-  if (br) {
-    const year = br[3].length === 2 ? Number(`20${br[3]}`) : Number(br[3]);
-    const date = new Date(year, Number(br[2]) - 1, Number(br[1]));
-    return Number.isNaN(date.getTime()) ? null : date;
-  }
-  const iso = new Date(text);
-  return Number.isNaN(iso.getTime()) ? null : iso;
-}
-
-function profileData(rows) {
-  const columns = Object.keys(rows[0] || {});
-  const dateColumns = [];
-  const numericColumns = [];
-  const categoryColumns = [];
-
-  columns.forEach((column) => {
-    const values = rows.map((row) => row[column]).filter(Boolean);
-    const sample = values.slice(0, 80);
-    const numericHits = sample.filter((value) => Number.isFinite(parseNumber(value))).length;
-    const dateHits = sample.filter((value) => parseDate(value)).length;
-    const uniqueCount = new Set(values).size;
-    const lower = column.toLowerCase();
-
-    if (dateHits >= Math.max(2, sample.length * 0.45) || /data|mes|mês|periodo|período/.test(lower)) {
-      dateColumns.push(column);
-    }
-    if (numericHits >= Math.max(2, sample.length * 0.55)) {
-      numericColumns.push(column);
-    }
-    if (uniqueCount > 1 && uniqueCount <= Math.max(30, rows.length * 0.55) && numericHits < sample.length * 0.5) {
-      categoryColumns.push(column);
-    }
-  });
-
-  const preferredCategory =
-    categoryColumns.find((column) => /unidade|escola|dre|setor|categoria|etapa|status|tipo|grupo/i.test(column)) ||
-    categoryColumns[0] ||
-    columns.find((column) => !numericColumns.includes(column) && !dateColumns.includes(column));
-
-  const preferredMetric =
-    numericColumns.find((column) => /valor|total|quant|qtd|matricula|matrícula|frequencia|frequência|meta|realizado/i.test(column)) ||
-    numericColumns[0];
-
-  return { columns, dateColumn: dateColumns[0], numericColumns, categoryColumns, preferredCategory, preferredMetric };
-}
-
-async function loadData() {
-  showStatus("Carregando dados da planilha...");
-  try {
-    const response = await fetch(`/api/data?t=${Date.now()}`, { cache: "no-store" });
-    if (!response.ok) throw new Error("A rota local de dados ainda nao esta ativa.");
-    const text = await response.text();
-      setRows(transformCsv(text));
-    hideStatus();
-  } catch (firstError) {
-    try {
-      const direct = await fetch(`${SHEET_CSV_URL}&t=${Date.now()}`, { cache: "no-store" });
-      if (!direct.ok) throw new Error("Leitura direta bloqueada.");
-      setRows(transformCsv(await direct.text()));
-      hideStatus();
-    } catch (secondError) {
-      setRows(parseCsv(sampleCsv));
-      showStatus("Nao consegui acessar a planilha neste ambiente local. Estou exibindo dados de exemplo; na Vercel, a rota /api/data busca a planilha publicada automaticamente.");
-    }
-  }
-}
-
-function setRows(rows) {
-  state.rows = rows;
-  state.columns = Object.keys(rows[0] || {});
-  state.profile = profileData(rows);
-  state.statementRows = findStatementRows(rows);
-  state.filteredRows = rows;
-  setupFilters();
+async function init() {
+  const response = await fetch(`${DATA_URL}?t=${Date.now()}`, { cache: "no-store" });
+  dashboardData = await response.json();
   render();
-  els.lastUpdated.textContent = `Atualizado em ${new Date().toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}`;
-}
-
-function setupFilters() {
-  const { numericColumns, categoryColumns, preferredMetric, preferredCategory, dateColumn } = state.profile;
-  fillSelect(els.metricSelect, numericColumns.map((column) => [column, column]), preferredMetric);
-  fillSelect(els.categoryFilter, [["__all", "Todos os grupos"]], "__all");
-
-  const category = preferredCategory;
-  els.categoryFilter.dataset.column = category || "";
-  if (category) {
-    const options = [...new Set(state.rows.map((row) => row[category]).filter(Boolean))]
-      .sort((a, b) => a.localeCompare(b, "pt-BR"))
-      .slice(0, 300)
-      .map((value) => [value, value]);
-    fillSelect(els.categoryFilter, [["__all", `Todos em ${category}`], ...options], "__all");
-  }
-
-  const monthOptions = [["__all", "Todos os periodos"]];
-  if (dateColumn) {
-    const months = [...new Set(state.rows.map((row) => monthKey(parseDate(row[dateColumn]))).filter(Boolean))].sort();
-    monthOptions.push(...months.map((key) => [key, formatMonthKey(key)]));
-  }
-  fillSelect(els.monthFilter, monthOptions, "__all");
-
-  if (!numericColumns.length) {
-    fillSelect(els.metricSelect, [["__count", "Contagem de registros"]], "__count");
-  }
-  if (!categoryColumns.length && !preferredCategory) {
-    fillSelect(els.categoryFilter, [["__all", "Todos os registros"]], "__all");
-  }
-
-  const statementOptions = state.statementRows.map((item) => [item.key, item.label]);
-  fillSelect(els.statementLineSelect, statementOptions, statementOptions[0]?.[0] || "");
-}
-
-function fillSelect(select, options, selected) {
-  select.innerHTML = options.map(([value, label]) => `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`).join("");
-  select.value = selected || options[0]?.[0] || "";
-}
-
-function applyFilters() {
-  const query = els.searchInput.value.trim().toLowerCase();
-  const categoryColumn = els.categoryFilter.dataset.column;
-  const categoryValue = els.categoryFilter.value;
-  const monthValue = els.monthFilter.value;
-  const dateColumn = state.profile.dateColumn;
-
-  state.filteredRows = state.rows.filter((row) => {
-    const matchesQuery = !query || state.columns.some((column) => String(row[column] || "").toLowerCase().includes(query));
-    const matchesCategory = !categoryColumn || categoryValue === "__all" || row[categoryColumn] === categoryValue;
-    const matchesMonth = monthValue === "__all" || monthKey(parseDate(row[dateColumn])) === monthValue;
-    return matchesQuery && matchesCategory && matchesMonth;
-  });
 }
 
 function render() {
-  applyFilters();
-  renderKpis();
+  els.sourceLabel.textContent = dashboardData.source;
+  els.updatedLabel.textContent = `Atualizado a partir do arquivo em ${formatDate(dashboardData.updatedFromFile)}`;
+
+  const grossRevenue = getLine("grossRevenue");
+  const expenses = getLine("expenses");
+  const finalResult = getLine("finalResult");
+
+  els.grossRevenueKpi.textContent = formatCurrency(grossRevenue.accumulated);
+  els.expensesKpi.textContent = formatCurrency(expenses.accumulated);
+  els.finalResultKpi.textContent = formatCurrency(finalResult.accumulated);
+  els.cmvKpi.textContent = `${formatNumber(dashboardData.cmv.accumulated)}%`;
+
   renderStatement();
-  renderTimeline();
-  renderCategoryChart();
-  renderDonut();
+  renderMainChart();
   renderCmvChart();
-  renderTable();
-}
-
-function renderKpis() {
-  const metric = els.metricSelect.value;
-  const selected = getSelectedStatementLine();
-  const sourceRows = selected?.rows || [];
-  const values = metric === "__count" ? [] : sourceRows.map((row) => parseNumber(row[metric])).filter(Number.isFinite);
-  const sum = values.reduce((total, value) => total + value, 0);
-  const avg = values.length ? sum / values.length : sourceRows.length;
-  const coverage = metric === "__count" ? 100 : Math.round((values.length / Math.max(1, sourceRows.length)) * 100);
-
-  els.kpiRows.textContent = formatNumber(state.statementRows.length);
-  els.kpiRowsNote.textContent = "Linhas executivas da DRE";
-  els.kpiSum.textContent = metric === "__count" ? formatNumber(sourceRows.length) : formatNumber(sum);
-  els.kpiSumNote.textContent = selected ? selected.label : metric;
-  els.kpiAvg.textContent = formatNumber(avg);
-  els.kpiCoverage.textContent = `${coverage}%`;
-  els.kpiCoverageNote.textContent = metric === "__count" ? "Meses exibidos" : "Meses com valor numerico";
-}
-
-function renderTimeline() {
-  const metric = els.metricSelect.value;
-  const selected = getSelectedStatementLine();
-
-  const data = selected
-    ? selected.rows.map((row) => ({
-        label: row.Mes || formatMonthKey(monthKey(parseDate(row.Data))),
-        value: metricValue(row, metric)
-      }))
-    : [];
-
-  els.timelineSubtitle.textContent = selected
-    ? `Linha: ${selected.label} | Indicador: ${metric}`
-    : "Selecione uma linha da DRE";
-  drawBarChart(document.querySelector("#timelineChart"), data, { horizontal: false, color: "#356b9a" });
 }
 
 function renderStatement() {
-  const metric = els.metricSelect.value;
-  const months = getStatementMonths();
-  els.statementSubtitle.textContent = `Indicador: ${metric}. Valores lidos diretamente das linhas sintéticas da planilha.`;
   els.statementHead.innerHTML = `
     <tr>
       <th>Linha da DRE</th>
-      ${months.map((month) => `<th>${escapeHtml(month.label)}</th>`).join("")}
-      <th>Total exibido</th>
+      ${dashboardData.months.map((month) => `<th>${month.label}</th>`).join("")}
+      <th>Acumulado</th>
     </tr>
   `;
-  els.statementBody.innerHTML = state.statementRows.map((item) => {
-    const values = months.map((month) => {
-      const row = item.rows.find((candidate) => monthKey(parseDate(candidate.Data)) === month.key);
-      return row ? metricValue(row, metric) : 0;
-    });
-    const total = values.reduce((sum, value) => sum + value, 0);
-    return `
-      <tr class="${item.key === "finalResult" ? "statement-row-total" : ""}">
-        <td>${escapeHtml(item.label)}</td>
-        ${values.map((value) => `<td>${formatCurrencyLike(value)}</td>`).join("")}
-        <td>${formatCurrencyLike(total)}</td>
-      </tr>
-    `;
-  }).join("");
-}
 
-function renderCategoryChart() {
-  const categoryColumn = state.profile.preferredCategory;
-  const metric = els.metricSelect.value;
-  const data = aggregateBy(categoryColumn, metric).slice(0, 8);
-  els.categorySubtitle.textContent = categoryColumn ? `Campo: ${categoryColumn}` : "Sem grupo identificado";
-  drawBarChart(document.querySelector("#categoryChart"), data, { horizontal: true, color: "#2f7d57" });
-}
-
-function renderDonut() {
-  const categoryColumn = state.profile.preferredCategory;
-  const metric = els.metricSelect.value;
-  const data = aggregateBy(categoryColumn, metric).slice(0, 6);
-  els.compositionSubtitle.textContent = categoryColumn ? `Participacao por ${categoryColumn}` : "Distribuicao dos registros";
-  drawDonutChart(document.querySelector("#donutChart"), data);
-  els.donutLegend.innerHTML = data.map((item, index) => `
-    <div class="legend-row">
-      <span class="legend-dot" style="background:${palette[index % palette.length]}"></span>
-      <span>${escapeHtml(item.label)}</span>
-      <strong>${formatNumber(item.value)}</strong>
-    </div>
+  els.statementBody.innerHTML = dashboardData.statement.map((line) => `
+    <tr class="${line.key === "finalResult" ? "statement-row-total" : ""}">
+      <td>
+        <strong>${escapeHtml(line.label)}</strong>
+        <small>${escapeHtml(line.sourceLabel)}</small>
+      </td>
+      ${line.values.map((item) => `<td>${formatCurrency(item.value)}</td>`).join("")}
+      <td>${formatCurrency(line.accumulated)}</td>
+    </tr>
   `).join("");
+}
+
+function renderMainChart() {
+  const series = [
+    { label: "Receita bruta", color: palette.revenue, values: getLine("grossRevenue").values.map((item) => item.value) },
+    { label: "Despesas", color: palette.expenses, values: getLine("expenses").values.map((item) => Math.abs(item.value)) },
+    { label: "Resultado final", color: palette.result, values: getLine("finalResult").values.map((item) => item.value) }
+  ];
+  drawGroupedBars(els.mainChart, dashboardData.months.map((month) => month.label), series, {
+    formatter: compactCurrency,
+    valueFormatter: compactCurrency
+  });
 }
 
 function renderCmvChart() {
-  const months = getStatementMonths();
-  const cmvRows = [
-    findRowsByAccount("CMV"),
-    findRowsByAccount("CMV BEBIDAS")
-  ].filter((item) => item.rows.length);
-
-  const series = cmvRows.map((item) => ({
-    label: item.label,
-    values: months.map((month) => {
-      const row = item.rows.find((candidate) => monthKey(parseDate(candidate.Data)) === month.key);
-      return row ? metricValue(row, "Realizado 2026") : 0;
-    })
-  }));
-
-  els.cmvSubtitle.textContent = series.length
-    ? "Valores percentuais lidos diretamente das linhas CMV e CMV Bebidas"
-    : "Linhas de CMV nao encontradas";
-  drawGroupedBarChart(document.querySelector("#cmvChart"), months.map((month) => month.label), series, { suffix: "%" });
-}
-
-function aggregateBy(column, metric) {
-  const groups = new Map();
-  state.filteredRows.forEach((row) => {
-    const label = column ? row[column] || "Sem informacao" : "Registros";
-    groups.set(label, (groups.get(label) || 0) + metricValue(row, metric));
+  drawSingleBars(els.cmvChart, dashboardData.months.map((month) => month.label), dashboardData.cmv.values.map((item) => item.value), {
+    color: palette.cmv,
+    formatter: (value) => `${formatNumber(value)}%`
   });
-  return [...groups.entries()]
-    .map(([label, value]) => ({ label, value }))
-    .sort((a, b) => b.value - a.value);
 }
 
-function metricValue(row, metric) {
-  if (!metric || metric === "__count") return 1;
-  const value = parseNumber(row[metric]);
-  return Number.isFinite(value) ? value : 0;
+function getLine(key) {
+  return dashboardData.statement.find((line) => line.key === key);
 }
 
-function findStatementRows(rows) {
-  return dreStatementLines.map((line) => {
-    const matches = rows.filter((row) => normalizeText(row.Conta) === line.match);
-    return { ...line, rows: matches };
-  }).filter((line) => line.rows.length);
-}
-
-function getSelectedStatementLine() {
-  return state.statementRows.find((line) => line.key === els.statementLineSelect.value) || state.statementRows[0];
-}
-
-function findRowsByAccount(match) {
-  const rows = state.rows.filter((row) => normalizeText(row.Conta) === match);
-  const first = rows[0]?.Conta || match;
-  return { label: cleanAccount(first), rows };
-}
-
-function getStatementMonths() {
-  const monthMap = new Map();
-  state.rows.forEach((row) => {
-    const key = monthKey(parseDate(row.Data));
-    if (key && row.Mes) monthMap.set(key, row.Mes);
-  });
-  return [...monthMap.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([key, label]) => ({ key, label }));
-}
-
-function normalizeText(value) {
-  return String(value || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/^[()=+\-\s]+/, "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toUpperCase();
-}
-
-function renderTable() {
-  const preferred = [
-    state.profile.dateColumn,
-    state.profile.preferredCategory,
-    ...state.profile.categoryColumns,
-    ...state.profile.numericColumns
-  ].filter(Boolean);
-  const columns = [...new Set(preferred)].slice(0, 8);
-  const tableColumns = columns.length ? columns : state.columns.slice(0, 8);
-  const rows = state.filteredRows.slice(0, 60);
-
-  els.tableSubtitle.textContent = `${formatNumber(state.filteredRows.length)} registros filtrados; exibindo ate 60 linhas`;
-  els.tableHead.innerHTML = `<tr>${tableColumns.map((column) => `<th>${escapeHtml(column)}</th>`).join("")}</tr>`;
-  els.tableBody.innerHTML = rows.map((row) => `
-    <tr>${tableColumns.map((column) => `<td>${escapeHtml(row[column] || "")}</td>`).join("")}</tr>
-  `).join("");
-}
-
-function drawBarChart(canvas, data, options = {}) {
+function drawGroupedBars(canvas, labels, series, options) {
   const ctx = setupCanvas(canvas);
   const { width, height } = canvas.getBoundingClientRect();
   const dpr = window.devicePixelRatio || 1;
   const w = width;
-  const h = height || 320;
-  ctx.clearRect(0, 0, w * dpr, h * dpr);
+  const h = height || 340;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
   ctx.scale(dpr, dpr);
 
-  const max = Math.max(1, ...data.map((item) => item.value));
-  const padding = options.horizontal ? { top: 10, right: 74, bottom: 18, left: 118 } : { top: 20, right: 18, bottom: 58, left: 52 };
+  const allValues = series.flatMap((item) => item.values.map(Math.abs));
+  const max = Math.max(1, ...allValues);
+  const padding = { top: 26, right: 22, bottom: 76, left: 58 };
   const chartW = w - padding.left - padding.right;
   const chartH = h - padding.top - padding.bottom;
-
-  ctx.font = "12px Inter, sans-serif";
-  ctx.fillStyle = "#667276";
-  ctx.strokeStyle = "#e2e5df";
-  ctx.lineWidth = 1;
-
-  if (!data.length) {
-    ctx.fillText("Sem dados para os filtros atuais", padding.left, padding.top + 24);
-    ctx.restore();
-    return;
-  }
-
-  if (options.horizontal) {
-    const gap = 10;
-    const barH = Math.max(18, (chartH - gap * (data.length - 1)) / data.length);
-    data.forEach((item, index) => {
-      const y = padding.top + index * (barH + gap);
-      const barW = (item.value / max) * chartW;
-      ctx.fillStyle = "#59666a";
-      ctx.fillText(truncate(item.label, 16), 0, y + barH * 0.65);
-      ctx.fillStyle = options.color || palette[index % palette.length];
-      roundRect(ctx, padding.left, y, barW, barH, 6);
-      ctx.fill();
-      ctx.fillStyle = "#1d2528";
-      ctx.fillText(formatNumber(item.value), padding.left + barW + 8, y + barH * 0.65);
-    });
-  } else {
-    const gap = 12;
-    const barW = Math.max(18, (chartW - gap * (data.length - 1)) / Math.max(1, data.length));
-    [0, 0.25, 0.5, 0.75, 1].forEach((step) => {
-      const y = padding.top + chartH - chartH * step;
-      ctx.beginPath();
-      ctx.moveTo(padding.left, y);
-      ctx.lineTo(padding.left + chartW, y);
-      ctx.stroke();
-    });
-    data.forEach((item, index) => {
-      const x = padding.left + index * (barW + gap);
-      const barH = (item.value / max) * chartH;
-      const y = padding.top + chartH - barH;
-      ctx.fillStyle = options.color || palette[index % palette.length];
-      roundRect(ctx, x, y, barW, barH, 6);
-      ctx.fill();
-      ctx.save();
-      ctx.fillStyle = "#1d2528";
-      ctx.font = "700 11px Inter, sans-serif";
-      ctx.textAlign = "center";
-      const label = compactNumber(item.value);
-      const labelY = y > padding.top + 16 ? y - 7 : y + 15;
-      ctx.fillText(label, x + barW / 2, labelY);
-      ctx.restore();
-      ctx.save();
-      ctx.translate(x + barW / 2, padding.top + chartH + 18);
-      ctx.rotate(-Math.PI / 5);
-      ctx.fillStyle = "#667276";
-      ctx.textAlign = "right";
-      ctx.fillText(truncate(item.label, 12), 0, 0);
-      ctx.restore();
-    });
-  }
-  ctx.restore();
-}
-
-function drawDonutChart(canvas, data) {
-  const ctx = setupCanvas(canvas);
-  const { width, height } = canvas.getBoundingClientRect();
-  const dpr = window.devicePixelRatio || 1;
-  const w = width;
-  const h = height || 260;
-  ctx.clearRect(0, 0, w * dpr, h * dpr);
-  ctx.save();
-  ctx.scale(dpr, dpr);
-
-  const total = data.reduce((sum, item) => sum + item.value, 0);
-  const cx = w / 2;
-  const cy = h / 2;
-  const radius = Math.min(w, h) / 2 - 14;
-  let angle = -Math.PI / 2;
-
-  if (!total) {
-    ctx.fillStyle = "#667276";
-    ctx.textAlign = "center";
-    ctx.fillText("Sem dados", cx, cy);
-    ctx.restore();
-    return;
-  }
-
-  data.forEach((item, index) => {
-    const slice = (item.value / total) * Math.PI * 2;
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, radius, angle, angle + slice);
-    ctx.closePath();
-    ctx.fillStyle = palette[index % palette.length];
-    ctx.fill();
-    angle += slice;
-  });
-
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius * 0.58, 0, Math.PI * 2);
-  ctx.fillStyle = "#fffdf8";
-  ctx.fill();
-  ctx.fillStyle = "#1d2528";
-  ctx.font = "700 22px Inter, sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText(formatNumber(total), cx, cy + 7);
-  ctx.restore();
-}
-
-function drawGroupedBarChart(canvas, labels, series, options = {}) {
-  const ctx = setupCanvas(canvas);
-  const { width, height } = canvas.getBoundingClientRect();
-  const dpr = window.devicePixelRatio || 1;
-  const w = width;
-  const h = height || 320;
-  ctx.clearRect(0, 0, w * dpr, h * dpr);
-  ctx.save();
-  ctx.scale(dpr, dpr);
-
-  const values = series.flatMap((item) => item.values);
-  const max = Math.max(1, ...values);
-  const padding = { top: 26, right: 24, bottom: 72, left: 52 };
-  const chartW = w - padding.left - padding.right;
-  const chartH = h - padding.top - padding.bottom;
-  const groupGap = 14;
-  const groupW = Math.max(24, (chartW - groupGap * (labels.length - 1)) / Math.max(1, labels.length));
+  const groupGap = 13;
+  const groupW = Math.max(30, (chartW - groupGap * (labels.length - 1)) / labels.length);
   const barGap = 4;
-  const barW = Math.max(8, (groupW - barGap * Math.max(0, series.length - 1)) / Math.max(1, series.length));
+  const barW = Math.max(7, (groupW - barGap * (series.length - 1)) / series.length);
 
-  ctx.font = "12px Inter, sans-serif";
-  ctx.fillStyle = "#667276";
-  ctx.strokeStyle = "#e2e5df";
-  ctx.lineWidth = 1;
+  drawGrid(ctx, padding, chartW, chartH, max, options.valueFormatter);
 
-  if (!labels.length || !series.length) {
-    ctx.fillText("Sem dados de CMV para exibir", padding.left, padding.top + 24);
-    ctx.restore();
-    return;
-  }
+  labels.forEach((label, monthIndex) => {
+    const groupX = padding.left + monthIndex * (groupW + groupGap);
+    series.forEach((item, seriesIndex) => {
+      const rawValue = item.values[monthIndex] || 0;
+      const value = Math.abs(rawValue);
+      const barH = (value / max) * chartH;
+      const x = groupX + seriesIndex * (barW + barGap);
+      const y = padding.top + chartH - barH;
+      ctx.fillStyle = item.color;
+      roundRect(ctx, x, y, barW, barH, 5);
+      ctx.fill();
+      ctx.fillStyle = palette.ink;
+      ctx.font = "700 10px Inter, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(options.formatter(rawValue), x + barW / 2, y > padding.top + 14 ? y - 5 : y + 13);
+    });
+    drawMonthLabel(ctx, label, groupX + groupW / 2, padding.top + chartH + 18);
+  });
 
+  drawLegend(ctx, series, padding.left, h - 18);
+  ctx.restore();
+}
+
+function drawSingleBars(canvas, labels, values, options) {
+  const ctx = setupCanvas(canvas);
+  const { width, height } = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const w = width;
+  const h = height || 300;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.save();
+  ctx.scale(dpr, dpr);
+
+  const max = Math.max(1, ...values);
+  const padding = { top: 24, right: 22, bottom: 66, left: 48 };
+  const chartW = w - padding.left - padding.right;
+  const chartH = h - padding.top - padding.bottom;
+  const gap = 13;
+  const barW = Math.max(18, (chartW - gap * (labels.length - 1)) / labels.length);
+
+  drawGrid(ctx, padding, chartW, chartH, max, (value) => `${formatNumber(value)}%`);
+  labels.forEach((label, index) => {
+    const value = values[index] || 0;
+    const barH = (value / max) * chartH;
+    const x = padding.left + index * (barW + gap);
+    const y = padding.top + chartH - barH;
+    ctx.fillStyle = options.color;
+    roundRect(ctx, x, y, barW, barH, 6);
+    ctx.fill();
+    ctx.fillStyle = palette.ink;
+    ctx.font = "700 11px Inter, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(options.formatter(value), x + barW / 2, y > padding.top + 15 ? y - 7 : y + 14);
+    drawMonthLabel(ctx, label, x + barW / 2, padding.top + chartH + 18);
+  });
+  ctx.restore();
+}
+
+function drawGrid(ctx, padding, chartW, chartH, max, formatter) {
+  ctx.strokeStyle = palette.grid;
+  ctx.fillStyle = palette.muted;
+  ctx.font = "11px Inter, sans-serif";
+  ctx.textAlign = "right";
   [0, 0.25, 0.5, 0.75, 1].forEach((step) => {
     const y = padding.top + chartH - chartH * step;
     ctx.beginPath();
     ctx.moveTo(padding.left, y);
     ctx.lineTo(padding.left + chartW, y);
     ctx.stroke();
+    ctx.fillText(formatter(max * step), padding.left - 8, y + 4);
   });
+}
 
-  labels.forEach((label, monthIndex) => {
-    const groupX = padding.left + monthIndex * (groupW + groupGap);
-    series.forEach((item, seriesIndex) => {
-      const value = item.values[monthIndex] || 0;
-      const barH = (value / max) * chartH;
-      const x = groupX + seriesIndex * (barW + barGap);
-      const y = padding.top + chartH - barH;
-      ctx.fillStyle = palette[seriesIndex % palette.length];
-      roundRect(ctx, x, y, barW, barH, 5);
-      ctx.fill();
-      ctx.fillStyle = "#1d2528";
-      ctx.font = "700 10px Inter, sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText(`${formatNumber(value)}${options.suffix || ""}`, x + barW / 2, y > padding.top + 14 ? y - 5 : y + 13);
-    });
+function drawMonthLabel(ctx, label, x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(-Math.PI / 5);
+  ctx.fillStyle = palette.muted;
+  ctx.font = "12px Inter, sans-serif";
+  ctx.textAlign = "right";
+  ctx.fillText(label, 0, 0);
+  ctx.restore();
+}
 
-    ctx.save();
-    ctx.translate(groupX + groupW / 2, padding.top + chartH + 18);
-    ctx.rotate(-Math.PI / 5);
-    ctx.fillStyle = "#667276";
-    ctx.font = "12px Inter, sans-serif";
-    ctx.textAlign = "right";
-    ctx.fillText(truncate(label, 12), 0, 0);
-    ctx.restore();
-  });
-
+function drawLegend(ctx, series, x, y) {
   series.forEach((item, index) => {
-    const x = padding.left + index * 150;
-    const y = h - 18;
-    ctx.fillStyle = palette[index % palette.length];
-    ctx.fillRect(x, y - 10, 12, 12);
+    const offset = index * 154;
+    ctx.fillStyle = item.color;
+    ctx.fillRect(x + offset, y - 10, 12, 12);
     ctx.fillStyle = "#495357";
     ctx.textAlign = "left";
     ctx.font = "700 12px Inter, sans-serif";
-    ctx.fillText(item.label, x + 18, y);
+    ctx.fillText(item.label, x + offset + 18, y);
   });
-
-  ctx.restore();
 }
 
 function setupCanvas(canvas) {
@@ -782,38 +235,30 @@ function roundRect(ctx, x, y, width, height, radius) {
   ctx.quadraticCurveTo(x, y, x + r, y);
 }
 
-function monthKey(date) {
-  if (!date) return "";
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-}
-
-function formatMonthKey(key) {
-  const [year, month] = key.split("-").map(Number);
-  if (!year || !month) return key;
-  return new Date(year, month - 1, 1).toLocaleDateString("pt-BR", { month: "short", year: "2-digit" });
-}
-
-function formatNumber(value) {
-  return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: value > 100 ? 0 : 1 }).format(value || 0);
-}
-
-function formatCurrencyLike(value) {
+function formatCurrency(value) {
   const formatted = new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
     maximumFractionDigits: 0
   }).format(Math.abs(value || 0));
   return value < 0 ? `(${formatted})` : formatted;
 }
 
-function compactNumber(value) {
+function compactCurrency(value) {
   const abs = Math.abs(value || 0);
-  if (abs >= 1000000) return `${formatNumber(value / 1000000)} mi`;
-  if (abs >= 1000) return `${formatNumber(value / 1000)} mil`;
-  return formatNumber(value);
+  const sign = value < 0 ? "-" : "";
+  if (abs >= 1000000) return `${sign}R$ ${formatNumber(abs / 1000000)} mi`;
+  if (abs >= 1000) return `${sign}R$ ${formatNumber(abs / 1000)} mil`;
+  return `${sign}R$ ${formatNumber(abs)}`;
 }
 
-function truncate(text, max) {
-  const clean = String(text || "");
-  return clean.length > max ? `${clean.slice(0, max - 1)}...` : clean;
+function formatNumber(value) {
+  return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 }).format(value || 0);
+}
+
+function formatDate(value) {
+  const date = new Date(`${value}T00:00:00`);
+  return date.toLocaleDateString("pt-BR");
 }
 
 function escapeHtml(value) {
@@ -826,43 +271,10 @@ function escapeHtml(value) {
   })[char]);
 }
 
-function showStatus(message) {
-  els.statusBanner.hidden = false;
-  els.statusBanner.textContent = message;
-}
-
-function hideStatus() {
-  els.statusBanner.hidden = true;
-  els.statusBanner.textContent = "";
-}
-
-function downloadFilteredCsv() {
-  const rows = state.filteredRows;
-  const csv = [
-    state.columns.map(csvCell).join(","),
-    ...rows.map((row) => state.columns.map((column) => csvCell(row[column])).join(","))
-  ].join("\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "dashboard-filtrado-2026.csv";
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
-function csvCell(value) {
-  const text = String(value ?? "");
-  return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
-}
-
-[els.searchInput, els.monthFilter, els.categoryFilter, els.metricSelect, els.statementLineSelect].forEach((element) => {
-  element.addEventListener("input", render);
-  element.addEventListener("change", render);
+window.addEventListener("resize", () => {
+  if (dashboardData) render();
 });
 
-els.refreshButton.addEventListener("click", loadData);
-els.downloadButton.addEventListener("click", downloadFilteredCsv);
-window.addEventListener("resize", () => render());
-
-loadData();
+init().catch((error) => {
+  document.body.innerHTML = `<main class="dre-app"><section class="panel"><h1>Não foi possível carregar o dashboard</h1><p>${escapeHtml(error.message)}</p></section></main>`;
+});
