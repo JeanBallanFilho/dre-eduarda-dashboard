@@ -309,11 +309,13 @@ td {
 .chart-area {
   position: relative;
   min-height: 320px;
+  overflow-x: auto;
 }
 
 canvas {
   display: block;
   width: 100%;
+  min-width: 980px;
   max-width: 100%;
 }
 
