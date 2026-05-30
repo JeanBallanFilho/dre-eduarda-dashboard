@@ -513,11 +513,12 @@ function drawGroupedBars(canvas, labels, series, options) {
       ctx.fill();
       if (rawValue !== 0) {
         ctx.save();
-        ctx.translate(x + barW / 2, y - 8);
+        ctx.translate(x + barW + 3, y - 10);
         ctx.rotate(-Math.PI / 4);
         ctx.fillStyle = item.color;
         ctx.font = "800 12px Inter, sans-serif";
-        ctx.textAlign = "center";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
         ctx.fillText(options.formatter(rawValue), 0, 0);
         ctx.restore();
       }
