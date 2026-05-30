@@ -352,7 +352,7 @@ function renderMainChart() {
     { label: "Resultado líquido final", color: palette.result, values: getLine("finalResult").values.map((item) => item.value) }
   ];
   drawGroupedBars(els.mainChart, dashboardData.months.map((month) => month.label), series, {
-    formatter: compactCurrency,
+    formatter: formatChartThousands,
     valueFormatter: compactCurrency
   });
 }
@@ -514,8 +514,8 @@ function drawGroupedBars(canvas, labels, series, options) {
       if (rawValue !== 0) {
         ctx.save();
         ctx.translate(x + barW + 3, y - 10);
-        ctx.rotate(-Math.PI / 4);
-        ctx.fillStyle = item.color;
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillStyle = rawValue < 0 ? "#b3262f" : palette.ink;
         ctx.font = "800 12px Inter, sans-serif";
         ctx.textAlign = "left";
         ctx.textBaseline = "middle";
@@ -654,6 +654,12 @@ function formatKpiThousands(value) {
   const thousands = Math.trunc(Math.abs(value || 0) / 1000);
   const formatted = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 }).format(thousands);
   return value < 0 ? `(${formatted}K)` : `${formatted}K`;
+}
+
+function formatChartThousands(value) {
+  const thousands = Math.round(Math.abs(value || 0) / 1000);
+  const formatted = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 }).format(thousands);
+  return value < 0 ? `-${formatted}K` : `${formatted}K`;
 }
 
 function formatNumber(value) {
