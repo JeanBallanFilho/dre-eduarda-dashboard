@@ -489,8 +489,8 @@ function drawGroupedBars(canvas, labels, series, options) {
   ctx.scale(dpr, dpr);
 
   const allValues = series.flatMap((item) => item.values.map(Math.abs));
-  const max = Math.max(1, ...allValues);
-  const padding = { top: 30, right: 22, bottom: 94, left: 58 };
+  const max = Math.max(1, ...allValues) * 1.18;
+  const padding = { top: 44, right: 22, bottom: 94, left: 58 };
   const chartW = w - padding.left - padding.right;
   const chartH = h - padding.top - padding.bottom;
   const groupGap = 13;
@@ -513,7 +513,7 @@ function drawGroupedBars(canvas, labels, series, options) {
       ctx.fill();
       if (rawValue !== 0) {
         ctx.save();
-        ctx.translate(x + barW + 3, y - 10);
+        ctx.translate(x + barW / 2, y - 8);
         ctx.rotate(-Math.PI / 2);
         ctx.fillStyle = rawValue < 0 ? "#b3262f" : palette.ink;
         ctx.font = "800 12px Inter, sans-serif";
