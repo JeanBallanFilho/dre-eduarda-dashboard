@@ -141,23 +141,25 @@ function buildYear(index, mapKey) {
   const map = columnMap[mapKey];
   const statement = statementDefs.map((def) => {
     const row = findRow(index, def.actual);
+    const values = readMonthValues(row.values, map);
     return {
       key: def.key,
       label: def.label,
       sourceLabel: row.label,
-      values: readMonthValues(row.values, map),
-      accumulated: parseNumber(row.values[map.accumulated])
+      values,
+      accumulated: readAccumulatedValue(row.values, map, values)
     };
   });
 
   const cmvRow = findRow(index, ["CMV"]);
+  const cmvValues = readMonthValues(cmvRow.values, map).map((item) => ({ ...item, value: asPercent(item.value) }));
   return {
     statement,
     cmv: {
       label: "CMV geral (%)",
       sourceLabel: cmvRow.label,
-      values: readMonthValues(cmvRow.values, map).map((item) => ({ ...item, value: asPercent(item.value) })),
-      accumulated: asPercent(parseNumber(cmvRow.values[map.accumulated]))
+      values: cmvValues,
+      accumulated: readAccumulatedPercent(cmvRow.values, map, cmvValues)
     }
   };
 }
@@ -370,6 +372,20 @@ function readMonthValues(row, map) {
   }));
 }
 
+function readAccumulatedValue(row, map, values) {
+  const direct = parseNumberOrNull(row[map.accumulated]);
+  if (direct !== null) return direct;
+  return values.reduce((sum, item) => sum + item.value, 0);
+}
+
+function readAccumulatedPercent(row, map, values) {
+  const direct = parseNumberOrNull(row[map.accumulated]);
+  const validValues = values.map((item) => item.value).filter((value) => value !== 0);
+  if (direct !== null && (direct !== 0 || validValues.length === 0)) return asPercent(direct);
+  if (!validValues.length) return 0;
+  return validValues.reduce((sum, value) => sum + value, 0) / validValues.length;
+}
+
 function indexRows(rows, labelColumn) {
   const index = new Map();
   rows.forEach((row) => {
@@ -403,10 +419,15 @@ function normalizeText(value) {
 }
 
 function parseNumber(value) {
+  return parseNumberOrNull(value) ?? 0;
+}
+
+function parseNumberOrNull(value) {
   if (value === null || value === undefined) return 0;
-  if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
   const raw = String(value).trim();
-  if (!raw || raw === "-" || raw.startsWith("#")) return 0;
+  if (!raw || raw === "-") return 0;
+  if (raw.startsWith("#")) return null;
   const negative = /^\(.+\)$/.test(raw);
   const cleaned = raw
     .replace(/[R$\s%()]/g, "")
@@ -415,7 +436,7 @@ function parseNumber(value) {
     .replace(/[^\d.-]/g, "");
   if (!cleaned || cleaned === "-" || cleaned === ".") return 0;
   const parsed = Number(cleaned);
-  if (!Number.isFinite(parsed)) return 0;
+  if (!Number.isFinite(parsed)) return null;
   return negative ? -Math.abs(parsed) : parsed;
 }
 
