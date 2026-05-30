@@ -512,10 +512,14 @@ function drawGroupedBars(canvas, labels, series, options) {
       roundRect(ctx, x, y, barW, barH, 5);
       ctx.fill();
       if (rawValue !== 0) {
-        ctx.fillStyle = palette.ink;
-        ctx.font = "700 9px Inter, sans-serif";
+        ctx.save();
+        ctx.translate(x + barW / 2, y - 8);
+        ctx.rotate(-Math.PI / 4);
+        ctx.fillStyle = item.color;
+        ctx.font = "800 12px Inter, sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText(options.formatter(rawValue), x + barW / 2, y > padding.top + 14 ? y - 5 : y + 13);
+        ctx.fillText(options.formatter(rawValue), 0, 0);
+        ctx.restore();
       }
     });
     drawMonthLabel(ctx, label, groupX + groupW / 2, padding.top + chartH + 18);
