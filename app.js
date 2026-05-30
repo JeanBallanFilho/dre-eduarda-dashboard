@@ -252,9 +252,9 @@ function render() {
   const expenses = getLine("expenses");
   const finalResult = getLine("finalResult");
 
-  els.grossRevenueKpi.textContent = formatCurrency(grossRevenue.accumulated);
-  els.expensesKpi.textContent = formatCurrency(expenses.accumulated);
-  els.finalResultKpi.textContent = formatCurrency(finalResult.accumulated);
+  els.grossRevenueKpi.textContent = formatKpiThousands(grossRevenue.accumulated);
+  els.expensesKpi.textContent = formatKpiThousands(expenses.accumulated);
+  els.finalResultKpi.textContent = formatKpiThousands(finalResult.accumulated);
   els.cmvKpi.textContent = formatPercent(dashboardData.cmv.accumulated);
   els.netMarginKpi.textContent = formatPercent(dashboardData.netMargin.value);
 
@@ -622,6 +622,12 @@ function compactCurrency(value) {
   if (abs >= 1000000) return `${sign}R$ ${formatNumber(abs / 1000000)} mi`;
   if (abs >= 1000) return `${sign}R$ ${formatNumber(abs / 1000)} mil`;
   return `${sign}R$ ${formatNumber(abs)}`;
+}
+
+function formatKpiThousands(value) {
+  const thousands = Math.trunc(Math.abs(value || 0) / 1000);
+  const formatted = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 }).format(thousands);
+  return value < 0 ? `(${formatted}K)` : `${formatted}K`;
 }
 
 function formatNumber(value) {
