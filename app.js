@@ -55,11 +55,11 @@ const palette = {
 };
 
 const mainChartDefs = [
-  { key: "grossRevenue", label: "Receita operacional bruta", color: palette.revenue },
-  { key: "deductions", label: "Custos operacionais", color: palette.costs },
-  { key: "operatingResult", label: "Resultado operacional liquido", color: palette.operatingResult },
-  { key: "grossResult", label: "Resultado antes de IRPJ e CSLL", color: palette.beforeTax },
-  { key: "finalResult", label: "Resultado liquido final", color: palette.result }
+  { key: "grossRevenue", label: "RECEITA OP. BRUTA", color: palette.revenue },
+  { key: "grossResult", label: "RESULTADO OP. BRUTO", color: palette.costs },
+  { key: "operatingResult", label: "RESULTADO OP. LIQUIDO", color: palette.operatingResult },
+  { key: "beforeTax", label: "RESULTADO ANTES DO IRPJ E CSLL", color: palette.beforeTax },
+  { key: "finalResult", label: "RESULTADO LIQ. FINAL", color: palette.result }
 ];
 
 const els = {
