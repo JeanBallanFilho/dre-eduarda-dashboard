@@ -49,10 +49,19 @@ const palette = {
   csll: "#8f553a",
   result: "#356b9a",
   cmv: "#c7922f",
+  cmvFoods: "#2f7d57",
+  cmvDrinks: "#356b9a",
+  cmvGeneral: "#c7922f",
   grid: "#e4e1d9",
   ink: "#172126",
   muted: "#667276"
 };
+
+const cmvSeriesDefs = [
+  { key: "foods", label: "CMV ALIMENTOS", matches: ["% CMV ALIMENTOS"], color: palette.cmvFoods },
+  { key: "drinks", label: "CMV BEBIDAS", matches: ["% CMV BEBIDAS"], color: palette.cmvDrinks },
+  { key: "general", label: "CMV GERAL", matches: ["% CMV A&B / RECEITA BRUTA"], color: palette.cmvGeneral }
+];
 
 const mainChartDefs = [
   { key: "grossRevenue", label: "RECEITA OP. BRUTA", color: palette.revenue },
@@ -161,16 +170,25 @@ function buildYear(index, mapKey) {
     };
   });
 
-  const cmvRow = findRow(index, ["CMV"]);
-  const cmvValues = readMonthValues(cmvRow.values, map).map((item) => ({ ...item, value: asPercent(item.value) }));
+  const cmvSeries = cmvSeriesDefs.map((def) => {
+    const row = findOptionalRow(index, def.matches);
+    const values = row
+      ? readMonthValues(row.values, map).map((item) => ({ ...item, value: asPercent(item.value) }))
+      : months.map((month) => ({ ...month, value: 0 }));
+    return {
+      key: def.key,
+      label: def.label,
+      sourceLabel: row ? row.label : def.label,
+      color: def.color,
+      values,
+      accumulated: row ? readAccumulatedPercent(row.values, map, values) : 0
+    };
+  });
+  const cmvGeneral = cmvSeries.find((item) => item.key === "general") || cmvSeries[cmvSeries.length - 1];
   return {
     statement,
-    cmv: {
-      label: "CMV geral (%)",
-      sourceLabel: cmvRow.label,
-      values: cmvValues,
-      accumulated: readAccumulatedPercent(cmvRow.values, map, cmvValues)
-    }
+    cmv: cmvGeneral,
+    cmvSeries
   };
 }
 
@@ -381,9 +399,14 @@ function renderMainChart() {
 }
 
 function renderCmvChart() {
-  drawSingleBars(els.cmvChart, dashboardData.months.map((month) => month.label), dashboardData.cmv.values.map((item) => item.value), {
-    color: palette.cmv,
-    formatter: formatPercent
+  const series = dashboardData.cmvSeries.map((item) => ({
+    label: item.label,
+    color: item.color,
+    values: item.values.map((value) => value.value)
+  }));
+  drawGroupedBars(els.cmvChart, dashboardData.months.map((month) => month.label), series, {
+    formatter: formatPercent,
+    valueFormatter: formatPercent
   });
 }
 
@@ -425,6 +448,14 @@ function findRow(index, matches) {
     if (row) return row;
   }
   throw new Error(`Linha não encontrada: ${matches.join(" / ")}`);
+}
+
+function findOptionalRow(index, matches) {
+  for (const match of matches) {
+    const row = index.get(match);
+    if (row) return row;
+  }
+  return null;
 }
 
 function getLine(key, statement = dashboardData.statement) {
