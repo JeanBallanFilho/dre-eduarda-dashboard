@@ -650,20 +650,35 @@ function drawMonthLabel(ctx, label, x, y) {
 }
 
 function drawLegend(ctx, series, x, y) {
-  series.forEach((item, index) => {
-    const chartWidth = ctx.canvas.width / (window.devicePixelRatio || 1);
-    const itemWidth = 170;
-    const perRow = Math.max(1, Math.floor((chartWidth - x - 18) / itemWidth));
-    const row = Math.floor(index / perRow);
-    const column = index % perRow;
-    const itemX = x + column * itemWidth;
-    const itemY = y + row * 18;
+  const chartWidth = ctx.canvas.width / (window.devicePixelRatio || 1);
+  const maxX = chartWidth - 18;
+  const gap = 24;
+  const rowHeight = 20;
+  const rows = [[]];
+
+  ctx.font = "700 12px Inter, sans-serif";
+  let cursorX = x;
+  series.forEach((item) => {
+    const itemWidth = 18 + ctx.measureText(item.label).width + gap;
+    if (cursorX > x && cursorX + itemWidth > maxX) {
+      rows.push([]);
+      cursorX = x;
+    }
+    rows[rows.length - 1].push({ item, x: cursorX });
+    cursorX += itemWidth;
+  });
+
+  const startY = y - (rows.length - 1) * rowHeight;
+  rows.forEach((row, rowIndex) => {
+    row.forEach(({ item, x: itemX }) => {
+      const itemY = startY + rowIndex * rowHeight;
     ctx.fillStyle = item.color;
     ctx.fillRect(itemX, itemY - 10, 12, 12);
     ctx.fillStyle = "#495357";
     ctx.textAlign = "left";
     ctx.font = "700 12px Inter, sans-serif";
     ctx.fillText(item.label, itemX + 18, itemY);
+    });
   });
 }
 
