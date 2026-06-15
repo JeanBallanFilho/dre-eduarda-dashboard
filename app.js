@@ -41,7 +41,9 @@ const columnMap = {
 
 const palette = {
   revenue: "#2f7d57",
+  costs: "#c7922f",
   expenses: "#b85661",
+  operatingResult: "#257c8a",
   beforeTax: "#7f6ab0",
   irpj: "#d07c36",
   csll: "#8f553a",
@@ -51,6 +53,14 @@ const palette = {
   ink: "#172126",
   muted: "#667276"
 };
+
+const mainChartDefs = [
+  { key: "grossRevenue", label: "Receita operacional bruta", color: palette.revenue },
+  { key: "deductions", label: "Custos operacionais", color: palette.costs },
+  { key: "operatingResult", label: "Resultado operacional liquido", color: palette.operatingResult },
+  { key: "grossResult", label: "Resultado antes de IRPJ e CSLL", color: palette.beforeTax },
+  { key: "finalResult", label: "Resultado liquido final", color: palette.result }
+];
 
 const els = {
   sourceLabel: document.querySelector("#sourceLabel"),
@@ -345,6 +355,19 @@ function renderBudgetComparison() {
 }
 
 function renderMainChart() {
+  {
+    const series = mainChartDefs.map((def) => ({
+      label: def.label,
+      color: def.color,
+      values: getLine(def.key).values.map((item) => item.value)
+    }));
+    drawGroupedBars(els.mainChart, dashboardData.months.map((month) => month.label), series, {
+      formatter: formatChartThousands,
+      valueFormatter: compactCurrency
+    });
+  }
+  return;
+
   const series = [
     { label: "Receita bruta", color: palette.revenue, values: getLine("grossRevenue").values.map((item) => item.value) },
     { label: "Despesas", color: palette.expenses, values: getLine("expenses").values.map((item) => item.value) },
