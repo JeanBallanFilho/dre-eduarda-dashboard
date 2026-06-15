@@ -512,8 +512,8 @@ function drawGroupedBars(canvas, labels, series, options) {
   ctx.scale(dpr, dpr);
 
   const allValues = series.flatMap((item) => item.values.map(Math.abs));
-  const max = Math.max(1, ...allValues) * 1.18;
-  const padding = { top: 44, right: 22, bottom: 94, left: 58 };
+  const max = Math.max(1, ...allValues) * 1.32;
+  const padding = { top: 82, right: 22, bottom: 94, left: 58 };
   const chartW = w - padding.left - padding.right;
   const chartH = h - padding.top - padding.bottom;
   const groupGap = 13;
@@ -525,6 +525,7 @@ function drawGroupedBars(canvas, labels, series, options) {
 
   labels.forEach((label, monthIndex) => {
     const groupX = padding.left + monthIndex * (groupW + groupGap);
+    const placedLabels = [];
     series.forEach((item, seriesIndex) => {
       const rawValue = item.values[monthIndex] || 0;
       const value = Math.abs(rawValue);
@@ -535,14 +536,48 @@ function drawGroupedBars(canvas, labels, series, options) {
       roundRect(ctx, x, y, barW, barH, 5);
       ctx.fill();
       if (rawValue !== 0) {
+        const text = options.formatter(rawValue);
+        ctx.font = "800 12px Inter, sans-serif";
+        const labelWidth = ctx.measureText(text).width;
+        const labelHeight = 13;
+        const labelX = x + barW / 2;
+        let labelY = y - 8;
+        let box = {
+          left: labelX - labelHeight / 2,
+          right: labelX + labelHeight / 2,
+          top: labelY - labelWidth,
+          bottom: labelY
+        };
+
+        placedLabels.forEach((placed) => {
+          const overlapsX = box.left < placed.right + 3 && box.right > placed.left - 3;
+          const overlapsY = box.top < placed.bottom + 4 && box.bottom > placed.top - 4;
+          if (overlapsX && overlapsY) {
+            labelY = placed.top - 6;
+            box = {
+              left: labelX - labelHeight / 2,
+              right: labelX + labelHeight / 2,
+              top: labelY - labelWidth,
+              bottom: labelY
+            };
+          }
+        });
+
+        if (box.top < 8) {
+          labelY += 8 - box.top;
+          box.top = 8;
+          box.bottom = labelY;
+        }
+        placedLabels.push(box);
+
         ctx.save();
-        ctx.translate(x + barW / 2, y - 8);
+        ctx.translate(labelX, labelY);
         ctx.rotate(-Math.PI / 2);
         ctx.fillStyle = rawValue < 0 ? "#b3262f" : palette.ink;
         ctx.font = "800 12px Inter, sans-serif";
         ctx.textAlign = "left";
         ctx.textBaseline = "middle";
-        ctx.fillText(options.formatter(rawValue), 0, 0);
+        ctx.fillText(text, 0, 0);
         ctx.restore();
       }
     });
