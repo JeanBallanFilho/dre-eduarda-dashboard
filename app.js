@@ -149,6 +149,7 @@ function buildDashboardData(sheets) {
     years,
     statement: years["2026"].statement,
     cmv: years["2026"].cmv,
+    cmvSeries: years["2026"].cmvSeries,
     netMargin,
     budgetComparison,
     comparison,
@@ -399,7 +400,8 @@ function renderMainChart() {
 }
 
 function renderCmvChart() {
-  const series = dashboardData.cmvSeries.map((item) => ({
+  const cmvSeries = dashboardData.cmvSeries || [dashboardData.cmv].filter(Boolean);
+  const series = cmvSeries.map((item) => ({
     label: item.label,
     color: item.color,
     values: item.values.map((value) => value.value)
