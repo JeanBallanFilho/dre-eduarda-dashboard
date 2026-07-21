@@ -290,7 +290,7 @@ function render() {
   els.cmvKpi.textContent = formatPercent(dashboardData.cmv.accumulated);
   els.netMarginKpi.textContent = formatPercent(dashboardData.netMargin.value);
   els.grossRevenueNote.textContent = `Acumulado oficial | mensal realizado até ${dashboardData.realizedMonths.at(-1).label}`;
-  els.realizedRangeLabel.textContent = `Receita líquida, despesas e resultado até ${dashboardData.realizedMonths.at(-1).label}, com negativos destacados.`;
+  els.realizedRangeLabel.textContent = `Receita bruta, resultado bruto, despesas e resultado final até ${dashboardData.realizedMonths.at(-1).label}.`;
 
   renderStatement();
   renderComparison();
@@ -373,7 +373,8 @@ function renderTrendChart() {
   const labels = dashboardData.realizedMonths.map((month) => month.label);
   const indexes = dashboardData.realizedMonths.map(monthIndex);
   const series = [
-    { label: "Receita líquida", color: palette.revenue, values: indexes.map((index) => getLine("netRevenue").values[index].value) },
+    { label: "Receita bruta", color: palette.revenue, values: indexes.map((index) => getLine("grossRevenue").values[index].value) },
+    { label: "Resultado bruto", color: palette.costs, values: indexes.map((index) => getLine("grossResult").values[index].value) },
     { label: "Despesas", color: palette.expenses, values: indexes.map((index) => getLine("expenses").values[index].value) },
     { label: "Resultado final", color: palette.result, values: indexes.map((index) => getLine("finalResult").values[index].value) }
   ];
