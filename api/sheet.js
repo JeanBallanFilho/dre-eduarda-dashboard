@@ -8,6 +8,14 @@ const BASE_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQe1qVYU1Phvbnjs3-X1lSNYCvmZFz78TqSj4VowqilN6p_FdvqLxYoUboU8JhXh8IlBBsaOkH2cF61/pub";
 
 module.exports = async function handler(request, response) {
+  response.setHeader("Access-Control-Allow-Origin", "*");
+  response.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+
+  if (request.method === "OPTIONS") {
+    response.status(204).end();
+    return;
+  }
+
   const name = request.query?.name;
   const gid = SHEETS[name];
 

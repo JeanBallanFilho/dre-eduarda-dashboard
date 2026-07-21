@@ -114,7 +114,10 @@ async function loadLiveData() {
 }
 
 async function fetchSheet(name) {
-  const response = await fetch(`/api/sheet?name=${name}&t=${Date.now()}`, { cache: "no-store" });
+  const apiBase = window.location.protocol === "file:"
+    ? "https://dre-eduarda-dashboard.vercel.app"
+    : "";
+  const response = await fetch(`${apiBase}/api/sheet?name=${name}&t=${Date.now()}`, { cache: "no-store" });
   if (!response.ok) throw new Error(`Não foi possível carregar a aba ${SHEETS[name]}.`);
   return parseCsvRows(await response.text());
 }
