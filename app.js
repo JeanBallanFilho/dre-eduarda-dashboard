@@ -394,7 +394,7 @@ function renderCmvChart() {
     color: item.color,
     values: indexes.map((index) => item.values[index].value)
   }));
-  drawGroupedColumns(els.cmvChart, labels, series, formatPercent, { percent: true });
+  drawGroupedColumns(els.cmvChart, labels, series, formatPercent, { percent: true, showValues: true });
 }
 
 function drawWaterfall(canvas, data) {
@@ -477,8 +477,8 @@ function drawGroupedColumns(canvas, labels, series, formatter, options = {}) {
 
   const allValues = series.flatMap((item) => item.values);
   const min = options.percent ? 0 : Math.min(0, ...allValues);
-  const max = Math.max(1, ...allValues);
-  const padding = { top: 52, right: 24, bottom: 76, left: 62 };
+  const max = Math.max(1, ...allValues) * (options.showValues ? 1.16 : 1);
+  const padding = { top: options.showValues ? 66 : 52, right: 24, bottom: 76, left: 62 };
   const chartW = w - padding.left - padding.right;
   const chartH = h - padding.top - padding.bottom;
   const scale = (value) => padding.top + (max - value) / (max - min) * chartH;
@@ -500,6 +500,13 @@ function drawGroupedColumns(canvas, labels, series, formatter, options = {}) {
       ctx.fillStyle = item.color;
       roundRect(ctx, x, y, barW, barH, 5);
       ctx.fill();
+
+      if (options.showValues && rawValue !== 0) {
+        ctx.fillStyle = item.color;
+        ctx.font = "800 10px Inter, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(formatter(rawValue), x + barW / 2, Math.max(14, y - 8));
+      }
     });
     drawMonthLabel(ctx, label, groupX + groupW / 2, padding.top + chartH + 22);
   });
@@ -518,9 +525,9 @@ function drawHorizontalVariance(canvas, rows) {
   ctx.save();
   ctx.scale(dpr, dpr);
 
-  const padding = { top: 34, right: 100, bottom: 36, left: 190 };
+  const padding = { top: 30, right: 110, bottom: 36, left: Math.min(285, Math.max(220, w * 0.4)) };
   const chartW = w - padding.left - padding.right;
-  const rowH = 58;
+  const rowH = 70;
   const maxAbs = Math.max(1, ...rows.map((item) => Math.abs(item.variance))) * 1.15;
   const zeroX = padding.left + chartW / 2;
   const scale = (value) => zeroX + (value / maxAbs) * (chartW / 2);
@@ -537,17 +544,21 @@ function drawHorizontalVariance(canvas, rows) {
     const x = Math.min(zeroX, valueX);
     const barW = Math.max(2, Math.abs(valueX - zeroX));
     ctx.fillStyle = row.variance >= 0 ? palette.revenue : palette.expenses;
-    roundRect(ctx, x, y + 15, barW, 18, 8);
+    roundRect(ctx, x, y + 24, barW, 18, 8);
     ctx.fill();
 
     ctx.fillStyle = palette.ink;
     ctx.font = "800 13px Inter, sans-serif";
     ctx.textAlign = "right";
-    ctx.fillText(row.label, padding.left - 14, y + 29);
+    drawRightAlignedLabel(ctx, row.label, padding.left - 18, y + 32, padding.left - 54);
 
-    ctx.textAlign = row.variance >= 0 ? "left" : "right";
+    ctx.textAlign = row.variance >= 0 ? "left" : "center";
     ctx.fillStyle = row.variance >= 0 ? palette.revenue : palette.expenses;
-    ctx.fillText(compactCurrency(row.variance), row.variance >= 0 ? valueX + 8 : valueX - 8, y + 29);
+    ctx.fillText(
+      compactCurrency(row.variance),
+      row.variance >= 0 ? Math.min(valueX + 10, w - 20) : x + barW / 2,
+      row.variance >= 0 ? y + 38 : y + 20
+    );
 
     ctx.fillStyle = palette.muted;
     ctx.font = "700 11px Inter, sans-serif";
@@ -556,6 +567,25 @@ function drawHorizontalVariance(canvas, rows) {
   });
 
   ctx.restore();
+}
+
+function drawRightAlignedLabel(ctx, label, x, y, maxWidth) {
+  const words = label.split(" ");
+  const lines = [];
+  let line = "";
+
+  words.forEach((word) => {
+    const test = line ? `${line} ${word}` : word;
+    if (ctx.measureText(test).width > maxWidth && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = test;
+    }
+  });
+
+  lines.push(line);
+  lines.slice(0, 2).forEach((text, index) => ctx.fillText(text, x, y + index * 15));
 }
 
 function drawYAxis(ctx, padding, chartW, chartH, min, max, formatter) {
