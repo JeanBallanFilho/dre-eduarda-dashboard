@@ -290,7 +290,7 @@ function render() {
   els.cmvKpi.textContent = formatPercent(dashboardData.cmv.accumulated);
   els.netMarginKpi.textContent = formatPercent(dashboardData.netMargin.value);
   els.grossRevenueNote.textContent = `Acumulado oficial | mensal realizado até ${dashboardData.realizedMonths.at(-1).label}`;
-  els.realizedRangeLabel.textContent = `Visão mensal até ${dashboardData.realizedMonths.at(-1).label}, evitando meses futuros zerados.`;
+  els.realizedRangeLabel.textContent = `Receita líquida, despesas e resultado até ${dashboardData.realizedMonths.at(-1).label}, com negativos destacados.`;
 
   renderStatement();
   renderComparison();
@@ -373,11 +373,16 @@ function renderTrendChart() {
   const labels = dashboardData.realizedMonths.map((month) => month.label);
   const indexes = dashboardData.realizedMonths.map(monthIndex);
   const series = [
-    { label: "Receita bruta", color: palette.revenue, values: indexes.map((index) => getLine("grossRevenue").values[index].value) },
+    { label: "Receita líquida", color: palette.revenue, values: indexes.map((index) => getLine("netRevenue").values[index].value) },
     { label: "Despesas", color: palette.expenses, values: indexes.map((index) => getLine("expenses").values[index].value) },
     { label: "Resultado final", color: palette.result, values: indexes.map((index) => getLine("finalResult").values[index].value) }
   ];
-  drawGroupedColumns(els.trendChart, labels, series, compactCurrency);
+  drawGroupedColumns(els.trendChart, labels, series, compactCurrency, {
+    emphasizeZero: true,
+    highlightNegatives: true,
+    labelNegativeValues: true,
+    labelSeriesKeys: new Set(["Resultado final"])
+  });
 }
 
 function renderBudgetChart() {
@@ -477,8 +482,14 @@ function drawGroupedColumns(canvas, labels, series, formatter, options = {}) {
 
   const allValues = series.flatMap((item) => item.values);
   const min = options.percent ? 0 : Math.min(0, ...allValues);
-  const max = Math.max(1, ...allValues) * (options.showValues ? 1.16 : 1);
-  const padding = { top: options.showValues ? 66 : 52, right: 24, bottom: 76, left: 62 };
+  const hasValueLabels = options.showValues || options.labelNegativeValues || options.labelSeriesKeys;
+  const max = Math.max(1, ...allValues) * (hasValueLabels ? 1.16 : 1);
+  const padding = {
+    top: hasValueLabels ? 66 : 52,
+    right: 24,
+    bottom: options.emphasizeZero ? 92 : 76,
+    left: options.emphasizeZero ? 78 : 62
+  };
   const chartW = w - padding.left - padding.right;
   const chartH = h - padding.top - padding.bottom;
   const scale = (value) => padding.top + (max - value) / (max - min) * chartH;
@@ -497,19 +508,37 @@ function drawGroupedColumns(canvas, labels, series, formatter, options = {}) {
       const y = rawValue >= 0 ? scale(rawValue) : zeroY;
       const barH = Math.max(2, Math.abs(scale(rawValue) - zeroY));
       const x = groupX + seriesIndex * (barW + barGap);
-      ctx.fillStyle = item.color;
+      const fill = options.highlightNegatives && rawValue < 0 ? palette.expenses : item.color;
+      ctx.fillStyle = fill;
       roundRect(ctx, x, y, barW, barH, 5);
       ctx.fill();
 
-      if (options.showValues && rawValue !== 0) {
-        ctx.fillStyle = item.color;
+      const shouldLabel = rawValue !== 0 && (
+        options.showValues ||
+        (options.labelNegativeValues && rawValue < 0 && item.label !== "Despesas") ||
+        options.labelSeriesKeys?.has(item.label)
+      );
+
+      if (shouldLabel) {
+        ctx.fillStyle = fill;
         ctx.font = "800 10px Inter, sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText(formatter(rawValue), x + barW / 2, Math.max(14, y - 8));
+        const labelY = rawValue >= 0 ? Math.max(14, y - 8) : Math.min(h - 12, y + barH + 14);
+        ctx.fillText(formatter(rawValue), x + barW / 2, labelY);
       }
     });
     drawMonthLabel(ctx, label, groupX + groupW / 2, padding.top + chartH + 22);
   });
+
+  if (options.emphasizeZero) {
+    ctx.strokeStyle = "#a9a397";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(padding.left, zeroY);
+    ctx.lineTo(padding.left + chartW, zeroY);
+    ctx.stroke();
+    ctx.lineWidth = 1;
+  }
 
   drawLegend(ctx, series, padding.left, 22);
   ctx.restore();
