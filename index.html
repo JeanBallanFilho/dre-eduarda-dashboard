@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f7f5f0" />
-    <title>DRE Altar 2026 | Dashboard</title>
+    <title>DRE Altar 2026 | Dashboard Executivo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -16,7 +16,7 @@
         <div>
           <p class="eyebrow">Dashboard executivo</p>
           <h1>DRE Altar 2026</h1>
-          <p class="subhead">Valores lidos diretamente das linhas consolidadas das abas 2026 e 2025.</p>
+          <p class="subhead">Leitura diretiva das abas 2026, 2025 e Orçamento DRE 26, sem usar a aba Capa como referência.</p>
         </div>
         <div class="hero-actions">
           <button class="refresh-button" id="refreshButton" type="button">Atualizar dados</button>
@@ -32,35 +32,100 @@
         <article class="kpi-card accent-gold">
           <span>Receita bruta</span>
           <strong id="grossRevenueKpi">--</strong>
-          <small>Acumulado da linha Receita Operacional Bruta</small>
+          <small id="grossRevenueNote">Acumulado oficial</small>
         </article>
         <article class="kpi-card accent-rose">
           <span>Despesas</span>
           <strong id="expensesKpi">--</strong>
-          <small>Acumulado da linha Despesas</small>
+          <small>Acumulado oficial da linha Despesas</small>
         </article>
         <article class="kpi-card accent-green">
           <span>Resultado final</span>
           <strong id="finalResultKpi">--</strong>
-          <small>Acumulado da linha Resultado Final Líquido</small>
+          <small>Resultado líquido final pós IRPJ/CSLL</small>
         </article>
         <article class="kpi-card accent-blue">
-          <span>CMV geral (%)</span>
-          <strong id="cmvKpi">--</strong>
-          <small>Percentual acumulado informado na planilha</small>
-        </article>
-        <article class="kpi-card accent-green">
           <span>Margem líquida</span>
           <strong id="netMarginKpi">--</strong>
-          <small>Resultado líquido final / receita operacional bruta</small>
+          <small>Resultado final / receita bruta</small>
+        </article>
+        <article class="kpi-card accent-gold">
+          <span>CMV A&B</span>
+          <strong id="cmvKpi">--</strong>
+          <small>Percentual acumulado informado na DRE</small>
+        </article>
+      </section>
+
+      <section class="executive-grid">
+        <article class="panel wide">
+          <div class="panel-header">
+            <div>
+              <h2>Ponte do resultado acumulado</h2>
+              <p>Da receita bruta ao resultado líquido final, destacando onde o valor é consumido ou recuperado.</p>
+            </div>
+          </div>
+          <div class="chart-area">
+            <canvas id="waterfallChart" width="1280" height="390"></canvas>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Resultado mensal realizado</h2>
+              <p id="realizedRangeLabel">Meses com dados realizados.</p>
+            </div>
+          </div>
+          <div class="chart-area compact">
+            <canvas id="trendChart" width="900" height="330"></canvas>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Orçado x realizado acumulado</h2>
+              <p>Variação acumulada nas principais linhas de decisão.</p>
+            </div>
+          </div>
+          <div class="chart-area compact">
+            <canvas id="budgetChart" width="900" height="330"></canvas>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>CMV por mês</h2>
+              <p>CMV A&B, bebidas e alimentos nos meses realizados.</p>
+            </div>
+          </div>
+          <div class="chart-area compact">
+            <canvas id="cmvChart" width="900" height="320"></canvas>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>2025 x 2026</h2>
+              <p>Comparativo acumulado das linhas mais relevantes.</p>
+            </div>
+          </div>
+          <div class="table-wrap compact-table">
+            <table class="comparison-table">
+              <thead id="comparisonHead"></thead>
+              <tbody id="comparisonBody"></tbody>
+            </table>
+          </div>
         </article>
       </section>
 
       <section class="panel statement-panel">
         <div class="panel-header">
           <div>
-            <h2>Demonstrativo simplificado</h2>
-            <p>Linhas principais da DRE, sem somar subcontas.</p>
+            <h2>DRE executiva resumida</h2>
+            <p>Linhas consolidadas principais, com meses não realizados retirados da visão mensal.</p>
           </div>
         </div>
         <div class="table-wrap">
@@ -69,62 +134,6 @@
             <tbody id="statementBody"></tbody>
           </table>
         </div>
-      </section>
-
-      <section class="panel statement-panel">
-        <div class="panel-header">
-          <div>
-            <h2>Orçado x realizado</h2>
-            <p>Comparativo mensal entre a aba 2026 e a aba Orçamento DRE 26.</p>
-          </div>
-        </div>
-        <div class="table-wrap">
-          <table class="budget-table">
-            <thead id="budgetHead"></thead>
-            <tbody id="budgetBody"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="panel statement-panel">
-        <div class="panel-header">
-          <div>
-            <h2>Comparativo 2025 x 2026</h2>
-            <p>Mesmas linhas consolidadas da DRE, comparando o acumulado de cada ano.</p>
-          </div>
-        </div>
-        <div class="table-wrap">
-          <table class="comparison-table">
-            <thead id="comparisonHead"></thead>
-            <tbody id="comparisonBody"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="dashboard-grid">
-        <article class="panel wide">
-          <div class="panel-header">
-            <div>
-              <h2>Receita, despesas e resultado</h2>
-              <p>Receita bruta, despesas, resultado antes de IRPJ/CSLL e resultado líquido final após impostos.</p>
-            </div>
-          </div>
-          <div class="chart-area">
-            <canvas id="mainChart" width="1280" height="430"></canvas>
-          </div>
-        </article>
-
-        <article class="panel wide">
-          <div class="panel-header">
-            <div>
-              <h2>CMV geral</h2>
-              <p>Comparativo mensal de CMV bebidas, CMV alimentos e CMV geral.</p>
-            </div>
-          </div>
-          <div class="chart-area">
-            <canvas id="cmvChart" width="1000" height="320"></canvas>
-          </div>
-        </article>
       </section>
     </main>
 

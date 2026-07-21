@@ -21,16 +21,16 @@ const months = [
 
 const statementDefs = [
   { key: "grossRevenue", label: "Receita operacional bruta", actual: ["RECEITA OPERACIONAL BRUTA"], budget: ["RECEITA OPERACIONAL BRUTA"] },
-  { key: "deductions", label: "Deduções de receita operacional bruta", actual: ["DEDUCOES DA RECEITA OPERACIONAL BRUTA"], budget: ["DEDUCOES DA RECEITA OPERACIONAL BRUTA"] },
+  { key: "deductions", label: "Deduções da receita", actual: ["DEDUCOES DA RECEITA OPERACIONAL BRUTA"], budget: ["DEDUCOES DA RECEITA OPERACIONAL BRUTA"] },
   { key: "netRevenue", label: "Receita operacional líquida", actual: ["RECEITA OPERACIONAL LIQUIDA"], budget: ["RECEITA OPERACIONAL LIQUIDA"] },
-  { key: "grossResult", label: "Resultado operacional bruto", actual: ["RESULTADO OPERACIONAL BRUTO"], budget: ["RESULTADO OPERACIONAL BRUTO"] },
+  { key: "grossResult", label: "Lucro bruto", actual: ["RESULTADO OPERACIONAL BRUTO"], budget: ["RESULTADO OPERACIONAL BRUTO"] },
   { key: "expenses", label: "Despesas", actual: ["DESPESAS"], budget: ["DESPESAS"] },
   { key: "operatingResult", label: "Resultado operacional líquido", actual: ["RESULTADO OPERACIONAL LIQUIDO"], budget: ["RESULTADO OPERACIONAL LIQUIDO"] },
-  { key: "beforeTax", label: "Resultado final antes do IR e CSLL", actual: ["RESULTADO FINAL ANTES DO IRPJ E CSLL", "RESULTADO FINAL ANTES DO IR E CSLL"], budget: [] },
+  { key: "beforeTax", label: "Resultado antes IRPJ/CSLL", actual: ["RESULTADO FINAL ANTES DO IRPJ E CSLL", "RESULTADO FINAL ANTES DO IR E CSLL"], budget: [] },
   { key: "irpj", label: "IRPJ", actual: ["IRPJ"], budget: [] },
   { key: "csll", label: "CSLL", actual: ["CSLL"], budget: [] },
-  { key: "beforeParticipation", label: "Resultado final antes das participações", actual: ["RESULTADO FINAL ANTES DAS PARTICIPACOES"], budget: [] },
-  { key: "finalResult", label: "Resultado líquido final pós IRPJ/CSLL", actual: ["RESULTADO LIQUIDO FINAL"], budget: ["RESULTADO FINAL"] }
+  { key: "beforeParticipation", label: "Resultado antes das participações", actual: ["RESULTADO FINAL ANTES DAS PARTICIPACOES"], budget: [] },
+  { key: "finalResult", label: "Resultado líquido final", actual: ["RESULTADO LIQUIDO FINAL"], budget: ["RESULTADO FINAL"] }
 ];
 
 const columnMap = {
@@ -45,30 +45,21 @@ const palette = {
   expenses: "#b85661",
   operatingResult: "#257c8a",
   beforeTax: "#7f6ab0",
-  irpj: "#d07c36",
-  csll: "#8f553a",
   result: "#356b9a",
-  cmv: "#c7922f",
   cmvFoods: "#2f7d57",
   cmvDrinks: "#356b9a",
   cmvGeneral: "#c7922f",
+  neutral: "#8b8172",
   grid: "#e4e1d9",
   ink: "#172126",
-  muted: "#667276"
+  muted: "#667276",
+  paper: "#fffdfa"
 };
 
 const cmvSeriesDefs = [
-  { key: "foods", label: "CMV ALIMENTOS", matches: ["% CMV ALIMENTOS"], color: palette.cmvFoods },
-  { key: "drinks", label: "CMV BEBIDAS", matches: ["% CMV BEBIDAS"], color: palette.cmvDrinks },
-  { key: "general", label: "CMV GERAL", matches: ["% CMV A&B / RECEITA BRUTA"], color: palette.cmvGeneral }
-];
-
-const mainChartDefs = [
-  { key: "grossRevenue", label: "RECEITA OP. BRUTA", color: palette.revenue },
-  { key: "grossResult", label: "RESULTADO OP. BRUTO", color: palette.costs },
-  { key: "operatingResult", label: "RESULTADO OP. LIQUIDO", color: palette.operatingResult },
-  { key: "beforeTax", label: "RESULTADO ANTES DO IRPJ E CSLL", color: palette.beforeTax },
-  { key: "finalResult", label: "RESULTADO LIQ. FINAL", color: palette.result }
+  { key: "general", label: "CMV A&B", matches: ["% CMV A&B / RECEITA BRUTA"], color: palette.cmvGeneral },
+  { key: "drinks", label: "CMV Bebidas", matches: ["% CMV BEBIDAS"], color: palette.cmvDrinks },
+  { key: "foods", label: "CMV Alimentos", matches: ["% CMV ALIMENTOS"], color: palette.cmvFoods }
 ];
 
 const els = {
@@ -76,17 +67,19 @@ const els = {
   updatedLabel: document.querySelector("#updatedLabel"),
   refreshButton: document.querySelector("#refreshButton"),
   grossRevenueKpi: document.querySelector("#grossRevenueKpi"),
+  grossRevenueNote: document.querySelector("#grossRevenueNote"),
   expensesKpi: document.querySelector("#expensesKpi"),
   finalResultKpi: document.querySelector("#finalResultKpi"),
   cmvKpi: document.querySelector("#cmvKpi"),
   netMarginKpi: document.querySelector("#netMarginKpi"),
+  realizedRangeLabel: document.querySelector("#realizedRangeLabel"),
   statementHead: document.querySelector("#statementHead"),
   statementBody: document.querySelector("#statementBody"),
   comparisonHead: document.querySelector("#comparisonHead"),
   comparisonBody: document.querySelector("#comparisonBody"),
-  budgetHead: document.querySelector("#budgetHead"),
-  budgetBody: document.querySelector("#budgetBody"),
-  mainChart: document.querySelector("#mainChart"),
+  waterfallChart: document.querySelector("#waterfallChart"),
+  trendChart: document.querySelector("#trendChart"),
+  budgetChart: document.querySelector("#budgetChart"),
   cmvChart: document.querySelector("#cmvChart")
 };
 
@@ -136,16 +129,16 @@ function buildDashboardData(sheets) {
     2025: buildYear(rows2025, "actual2025")
   };
 
+  const realizedMonths = getRealizedMonths(years["2026"].statement);
   const budgetComparison = buildBudgetComparison(rows2026, budgetRows);
   const comparison = buildYearComparison(years);
-  const cmvComparison = buildCmvComparison(years);
   const netMargin = buildNetMargin(years["2026"]);
 
   return {
-    title: "DRE Altar 2026",
     source: "Google Sheets | abas 2026, 2025 e Orçamento DRE 26",
     updatedAt: new Date().toISOString(),
     months,
+    realizedMonths,
     years,
     statement: years["2026"].statement,
     cmv: years["2026"].cmv,
@@ -153,7 +146,7 @@ function buildDashboardData(sheets) {
     netMargin,
     budgetComparison,
     comparison,
-    cmvComparison
+    cmvComparison: buildCmvComparison(years)
   };
 }
 
@@ -185,10 +178,10 @@ function buildYear(index, mapKey) {
       accumulated: row ? readAccumulatedPercent(row.values, map, values) : 0
     };
   });
-  const cmvGeneral = cmvSeries.find((item) => item.key === "general") || cmvSeries[cmvSeries.length - 1];
+
   return {
     statement,
-    cmv: cmvGeneral,
+    cmv: cmvSeries.find((item) => item.key === "general") || cmvSeries[0],
     cmvSeries
   };
 }
@@ -204,26 +197,24 @@ function buildBudgetComparison(actualIndex, budgetIndex) {
       const budgetRow = findRow(budgetIndex, def.budget);
       const actualValues = readMonthValues(actualRow.values, actualMap);
       const budgetValues = readMonthValues(budgetRow.values, budgetMap);
-      const values = actualValues.map((actual, index) => {
-        const budget = budgetValues[index];
-        const variance = actual.value - budget.value;
-        return {
-          month: actual.month,
-          label: actual.label,
-          actual: actual.value,
-          budget: budget.value,
-          variance,
-          variancePct: budget.value === 0 ? null : (variance / Math.abs(budget.value)) * 100
-        };
-      });
       const actual = parseNumber(actualRow.values[actualMap.accumulated]);
       const budget = parseNumber(budgetRow.values[budgetMap.accumulated]);
       const variance = actual - budget;
       return {
         key: def.key,
         label: def.label,
-        sourceLabel: budgetRow.label,
-        values,
+        values: actualValues.map((actualItem, index) => {
+          const budgetItem = budgetValues[index];
+          const itemVariance = actualItem.value - budgetItem.value;
+          return {
+            month: actualItem.month,
+            label: actualItem.label,
+            actual: actualItem.value,
+            budget: budgetItem.value,
+            variance: itemVariance,
+            variancePct: budgetItem.value === 0 ? null : (itemVariance / Math.abs(budgetItem.value)) * 100
+          };
+        }),
         actual,
         budget,
         variance,
@@ -233,17 +224,18 @@ function buildBudgetComparison(actualIndex, budgetIndex) {
 }
 
 function buildYearComparison(years) {
-  return statementDefs.map((def) => {
-    const value2026 = getLine(def.key, years["2026"].statement).accumulated;
-    const value2025 = getLine(def.key, years["2025"].statement).accumulated;
-    const delta = value2026 - value2025;
+  const keys = ["grossRevenue", "netRevenue", "grossResult", "expenses", "operatingResult", "finalResult"];
+  return keys.map((key) => {
+    const line2026 = lineByKey(years["2026"].statement, key);
+    const line2025 = lineByKey(years["2025"].statement, key);
+    const delta = line2026.accumulated - line2025.accumulated;
     return {
-      key: def.key,
-      label: def.label,
-      value2025,
-      value2026,
+      key,
+      label: line2026.label,
+      value2025: line2025.accumulated,
+      value2026: line2026.accumulated,
       delta,
-      deltaPct: value2025 === 0 ? null : (delta / Math.abs(value2025)) * 100
+      deltaPct: line2025.accumulated === 0 ? null : (delta / Math.abs(line2025.accumulated)) * 100
     };
   });
 }
@@ -253,7 +245,7 @@ function buildCmvComparison(years) {
   const value2025 = years["2025"].cmv.accumulated;
   const delta = value2026 - value2025;
   return {
-    label: "CMV geral (%)",
+    label: "CMV A&B",
     value2025,
     value2026,
     delta,
@@ -262,10 +254,9 @@ function buildCmvComparison(years) {
 }
 
 function buildNetMargin(year) {
-  const revenue = getLine("grossRevenue", year.statement);
-  const result = getLine("finalResult", year.statement);
+  const revenue = lineByKey(year.statement, "grossRevenue");
+  const result = lineByKey(year.statement, "finalResult");
   return {
-    label: "Margem líquida (%)",
     value: revenue.accumulated === 0 ? 0 : (result.accumulated / revenue.accumulated) * 100,
     values: months.map((month, index) => {
       const rev = revenue.values[index].value;
@@ -273,6 +264,13 @@ function buildNetMargin(year) {
       return { ...month, value: rev === 0 ? 0 : (res / rev) * 100 };
     })
   };
+}
+
+function getRealizedMonths(statement) {
+  const revenue = lineByKey(statement, "grossRevenue");
+  const lastRevenueIndex = revenue.values.reduce((last, item, index) => Math.abs(item.value) > 0 ? index : last, -1);
+  const lastIndex = Math.max(0, lastRevenueIndex);
+  return months.slice(0, lastIndex + 1);
 }
 
 function render() {
@@ -283,35 +281,42 @@ function render() {
   const expenses = getLine("expenses");
   const finalResult = getLine("finalResult");
 
-  els.grossRevenueKpi.textContent = formatKpiThousands(grossRevenue.accumulated);
-  els.expensesKpi.textContent = formatKpiThousands(expenses.accumulated);
-  els.finalResultKpi.textContent = formatKpiThousands(finalResult.accumulated);
+  els.grossRevenueKpi.textContent = formatKpiMillions(grossRevenue.accumulated);
+  els.expensesKpi.textContent = formatKpiMillions(expenses.accumulated);
+  els.finalResultKpi.textContent = formatKpiMillions(finalResult.accumulated);
   els.cmvKpi.textContent = formatPercent(dashboardData.cmv.accumulated);
   els.netMarginKpi.textContent = formatPercent(dashboardData.netMargin.value);
+  els.grossRevenueNote.textContent = `Acumulado oficial | mensal realizado até ${dashboardData.realizedMonths.at(-1).label}`;
+  els.realizedRangeLabel.textContent = `Visão mensal até ${dashboardData.realizedMonths.at(-1).label}, evitando meses futuros zerados.`;
 
   renderStatement();
   renderComparison();
-  renderBudgetComparison();
-  renderMainChart();
+  renderWaterfallChart();
+  renderTrendChart();
+  renderBudgetChart();
   renderCmvChart();
 }
 
 function renderStatement() {
+  const visibleMonths = dashboardData.realizedMonths;
   els.statementHead.innerHTML = `
     <tr>
       <th>Linha da DRE</th>
-      ${dashboardData.months.map((month) => `<th>${month.label}</th>`).join("")}
+      ${visibleMonths.map((month) => `<th>${month.label}</th>`).join("")}
       <th>Acumulado</th>
     </tr>
   `;
 
-  els.statementBody.innerHTML = dashboardData.statement.map((line) => `
+  const rows = ["grossRevenue", "deductions", "netRevenue", "grossResult", "expenses", "operatingResult", "beforeTax", "finalResult"]
+    .map((key) => getLine(key));
+
+  els.statementBody.innerHTML = rows.map((line) => `
     <tr class="${line.key === "finalResult" ? "statement-row-total" : ""}">
       <td>
         <strong>${escapeHtml(line.label)}</strong>
         <small>${escapeHtml(line.sourceLabel)}</small>
       </td>
-      ${line.values.map((item) => `<td>${formatCurrency(item.value)}</td>`).join("")}
+      ${visibleMonths.map((month) => `<td>${formatCurrency(line.values[monthIndex(month)].value)}</td>`).join("")}
       <td>${formatCurrency(line.accumulated)}</td>
     </tr>
   `).join("");
@@ -321,95 +326,313 @@ function renderComparison() {
   const rows = [...dashboardData.comparison, dashboardData.cmvComparison];
   els.comparisonHead.innerHTML = `
     <tr>
-      <th>Linha da DRE</th>
+      <th>Linha</th>
       <th>2025</th>
       <th>2026</th>
-      <th>Variação</th>
-      <th>Variação %</th>
+      <th>Var.</th>
     </tr>
   `;
 
   els.comparisonBody.innerHTML = rows.map((line) => {
     const isCmv = line.label.includes("CMV");
-    const valueFormatter = isCmv ? formatPercent : formatCurrency;
+    const formatter = isCmv ? formatPercent : formatCurrency;
     return `
       <tr class="${line.key === "finalResult" ? "statement-row-total" : ""}">
         <td><strong>${escapeHtml(line.label)}</strong></td>
-        <td>${valueFormatter(line.value2025)}</td>
-        <td>${valueFormatter(line.value2026)}</td>
+        <td>${formatter(line.value2025)}</td>
+        <td>${formatter(line.value2026)}</td>
         <td class="${line.delta < 0 ? "negative" : "positive"}">${isCmv ? formatPercent(line.delta) : formatCurrency(line.delta)}</td>
-        <td class="${line.deltaPct < 0 ? "negative" : "positive"}">${line.deltaPct === null ? "-" : formatPercent(line.deltaPct)}</td>
       </tr>
     `;
   }).join("");
 }
 
-function renderBudgetComparison() {
-  const monthHeaders = dashboardData.months.map((month) => `<th>${month.label}<small>Real / Orç / Δ</small></th>`).join("");
-  els.budgetHead.innerHTML = `
-    <tr>
-      <th>Linha da DRE</th>
-      ${monthHeaders}
-      <th>Acumulado</th>
-    </tr>
-  `;
+function renderWaterfallChart() {
+  const grossRevenue = getLine("grossRevenue").accumulated;
+  const netRevenue = getLine("netRevenue").accumulated;
+  const grossResult = getLine("grossResult").accumulated;
+  const operatingResult = getLine("operatingResult").accumulated;
+  const finalResult = getLine("finalResult").accumulated;
 
-  els.budgetBody.innerHTML = dashboardData.budgetComparison.map((line) => `
-    <tr>
-      <td><strong>${escapeHtml(line.label)}</strong></td>
-      ${line.values.map((item) => `
-        <td>
-          <span>${formatCurrency(item.actual)}</span>
-          <small>${formatCurrency(item.budget)}</small>
-          <em class="${item.variance < 0 ? "negative" : "positive"}">${formatCurrency(item.variance)}</em>
-        </td>
-      `).join("")}
-      <td>
-        <span>${formatCurrency(line.actual)}</span>
-        <small>${formatCurrency(line.budget)}</small>
-        <em class="${line.variance < 0 ? "negative" : "positive"}">${formatCurrency(line.variance)}</em>
-      </td>
-    </tr>
-  `).join("");
+  const data = [
+    { label: "Receita bruta", value: grossRevenue, total: true, color: palette.revenue },
+    { label: "Deduções", value: netRevenue - grossRevenue, color: palette.expenses },
+    { label: "CMV", value: grossResult - netRevenue, color: palette.costs },
+    { label: "Despesas", value: operatingResult - grossResult, color: palette.expenses },
+    { label: "Não operacional / impostos", value: finalResult - operatingResult, color: palette.beforeTax },
+    { label: "Resultado final", value: finalResult, total: true, color: palette.result }
+  ];
+
+  drawWaterfall(els.waterfallChart, data);
 }
 
-function renderMainChart() {
-  {
-    const series = mainChartDefs.map((def) => ({
-      label: def.label,
-      color: def.color,
-      values: getLine(def.key).values.map((item) => item.value)
-    }));
-    drawGroupedBars(els.mainChart, dashboardData.months.map((month) => month.label), series, {
-      formatter: formatChartThousands,
-      valueFormatter: compactCurrency
-    });
-  }
-  return;
-
+function renderTrendChart() {
+  const labels = dashboardData.realizedMonths.map((month) => month.label);
+  const indexes = dashboardData.realizedMonths.map(monthIndex);
   const series = [
-    { label: "Receita bruta", color: palette.revenue, values: getLine("grossRevenue").values.map((item) => item.value) },
-    { label: "Despesas", color: palette.expenses, values: getLine("expenses").values.map((item) => item.value) },
-    { label: "Antes IRPJ/CSLL", color: palette.beforeTax, values: getLine("beforeTax").values.map((item) => item.value) },
-    { label: "Resultado líquido final", color: palette.result, values: getLine("finalResult").values.map((item) => item.value) }
+    { label: "Receita bruta", color: palette.revenue, values: indexes.map((index) => getLine("grossRevenue").values[index].value) },
+    { label: "Despesas", color: palette.expenses, values: indexes.map((index) => getLine("expenses").values[index].value) },
+    { label: "Resultado final", color: palette.result, values: indexes.map((index) => getLine("finalResult").values[index].value) }
   ];
-  drawGroupedBars(els.mainChart, dashboardData.months.map((month) => month.label), series, {
-    formatter: formatChartThousands,
-    valueFormatter: compactCurrency
-  });
+  drawGroupedColumns(els.trendChart, labels, series, compactCurrency);
+}
+
+function renderBudgetChart() {
+  const keys = ["grossRevenue", "expenses", "finalResult"];
+  const rows = keys.map((key) => dashboardData.budgetComparison.find((line) => line.key === key)).filter(Boolean);
+  drawHorizontalVariance(els.budgetChart, rows);
 }
 
 function renderCmvChart() {
-  const cmvSeries = dashboardData.cmvSeries || [dashboardData.cmv].filter(Boolean);
-  const series = cmvSeries.map((item) => ({
+  const labels = dashboardData.realizedMonths.map((month) => month.label);
+  const indexes = dashboardData.realizedMonths.map(monthIndex);
+  const series = dashboardData.cmvSeries.map((item) => ({
     label: item.label,
     color: item.color,
-    values: item.values.map((value) => value.value)
+    values: indexes.map((index) => item.values[index].value)
   }));
-  drawGroupedBars(els.cmvChart, dashboardData.months.map((month) => month.label), series, {
-    formatter: formatPercent,
-    valueFormatter: formatPercent
+  drawGroupedColumns(els.cmvChart, labels, series, formatPercent, { percent: true });
+}
+
+function drawWaterfall(canvas, data) {
+  const ctx = setupCanvas(canvas);
+  const { width, height } = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const w = width;
+  const h = height || 390;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.save();
+  ctx.scale(dpr, dpr);
+
+  const padding = { top: 42, right: 28, bottom: 82, left: 72 };
+  const chartW = w - padding.left - padding.right;
+  const chartH = h - padding.top - padding.bottom;
+  let running = 0;
+  const extents = [0];
+  data.forEach((item) => {
+    if (item.total) {
+      extents.push(item.value);
+      running = item.value;
+    } else {
+      extents.push(running, running + item.value);
+      running += item.value;
+    }
   });
+  const min = Math.min(0, ...extents);
+  const max = Math.max(1, ...extents);
+  const scale = (value) => padding.top + (max - value) / (max - min) * chartH;
+  const zeroY = scale(0);
+  const gap = 22;
+  const barW = Math.max(54, (chartW - gap * (data.length - 1)) / data.length);
+
+  drawYAxis(ctx, padding, chartW, chartH, min, max, compactCurrency);
+
+  running = 0;
+  data.forEach((item, index) => {
+    const x = padding.left + index * (barW + gap);
+    const start = item.total ? 0 : running;
+    const end = item.total ? item.value : running + item.value;
+    const y = scale(Math.max(start, end));
+    const barH = Math.max(2, Math.abs(scale(start) - scale(end)));
+    ctx.fillStyle = item.color;
+    roundRect(ctx, x, y, barW, barH, 6);
+    ctx.fill();
+
+    if (!item.total && index > 0) {
+      const prevX = padding.left + (index - 1) * (barW + gap) + barW;
+      const connectorY = scale(start);
+      ctx.strokeStyle = "#beb7aa";
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(prevX, connectorY);
+      ctx.lineTo(x, connectorY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    ctx.fillStyle = item.value < 0 ? palette.expenses : palette.ink;
+    ctx.font = "800 12px Inter, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(compactCurrency(item.value), x + barW / 2, y - 8 < 14 ? y + 17 : y - 8);
+    drawWrappedLabel(ctx, item.label, x + barW / 2, Math.max(zeroY, padding.top + chartH) + 24, barW + 18);
+
+    running = end;
+  });
+
+  ctx.restore();
+}
+
+function drawGroupedColumns(canvas, labels, series, formatter, options = {}) {
+  const ctx = setupCanvas(canvas);
+  const { width, height } = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const w = width;
+  const h = height || 320;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.save();
+  ctx.scale(dpr, dpr);
+
+  const allValues = series.flatMap((item) => item.values);
+  const min = options.percent ? 0 : Math.min(0, ...allValues);
+  const max = Math.max(1, ...allValues);
+  const padding = { top: 52, right: 24, bottom: 76, left: 62 };
+  const chartW = w - padding.left - padding.right;
+  const chartH = h - padding.top - padding.bottom;
+  const scale = (value) => padding.top + (max - value) / (max - min) * chartH;
+  const zeroY = scale(0);
+  const groupGap = 18;
+  const groupW = Math.max(46, (chartW - groupGap * (labels.length - 1)) / labels.length);
+  const barGap = 5;
+  const barW = Math.max(9, (groupW - barGap * (series.length - 1)) / series.length);
+
+  drawYAxis(ctx, padding, chartW, chartH, min, max, formatter);
+
+  labels.forEach((label, monthIndex) => {
+    const groupX = padding.left + monthIndex * (groupW + groupGap);
+    series.forEach((item, seriesIndex) => {
+      const rawValue = item.values[monthIndex] || 0;
+      const y = rawValue >= 0 ? scale(rawValue) : zeroY;
+      const barH = Math.max(2, Math.abs(scale(rawValue) - zeroY));
+      const x = groupX + seriesIndex * (barW + barGap);
+      ctx.fillStyle = item.color;
+      roundRect(ctx, x, y, barW, barH, 5);
+      ctx.fill();
+    });
+    drawMonthLabel(ctx, label, groupX + groupW / 2, padding.top + chartH + 22);
+  });
+
+  drawLegend(ctx, series, padding.left, 22);
+  ctx.restore();
+}
+
+function drawHorizontalVariance(canvas, rows) {
+  const ctx = setupCanvas(canvas);
+  const { width, height } = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const w = width;
+  const h = height || 320;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.save();
+  ctx.scale(dpr, dpr);
+
+  const padding = { top: 34, right: 100, bottom: 36, left: 190 };
+  const chartW = w - padding.left - padding.right;
+  const rowH = 58;
+  const maxAbs = Math.max(1, ...rows.map((item) => Math.abs(item.variance))) * 1.15;
+  const zeroX = padding.left + chartW / 2;
+  const scale = (value) => zeroX + (value / maxAbs) * (chartW / 2);
+
+  ctx.strokeStyle = palette.grid;
+  ctx.beginPath();
+  ctx.moveTo(zeroX, padding.top - 10);
+  ctx.lineTo(zeroX, padding.top + rowH * rows.length);
+  ctx.stroke();
+
+  rows.forEach((row, index) => {
+    const y = padding.top + index * rowH;
+    const valueX = scale(row.variance);
+    const x = Math.min(zeroX, valueX);
+    const barW = Math.max(2, Math.abs(valueX - zeroX));
+    ctx.fillStyle = row.variance >= 0 ? palette.revenue : palette.expenses;
+    roundRect(ctx, x, y + 15, barW, 18, 8);
+    ctx.fill();
+
+    ctx.fillStyle = palette.ink;
+    ctx.font = "800 13px Inter, sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText(row.label, padding.left - 14, y + 29);
+
+    ctx.textAlign = row.variance >= 0 ? "left" : "right";
+    ctx.fillStyle = row.variance >= 0 ? palette.revenue : palette.expenses;
+    ctx.fillText(compactCurrency(row.variance), row.variance >= 0 ? valueX + 8 : valueX - 8, y + 29);
+
+    ctx.fillStyle = palette.muted;
+    ctx.font = "700 11px Inter, sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText(`Real ${compactCurrency(row.actual)} | Orç ${compactCurrency(row.budget)}`, padding.left - 14, y + 45);
+  });
+
+  ctx.restore();
+}
+
+function drawYAxis(ctx, padding, chartW, chartH, min, max, formatter) {
+  ctx.strokeStyle = palette.grid;
+  ctx.fillStyle = palette.muted;
+  ctx.font = "11px Inter, sans-serif";
+  ctx.textAlign = "right";
+  [0, 0.25, 0.5, 0.75, 1].forEach((step) => {
+    const value = min + (max - min) * step;
+    const y = padding.top + chartH - chartH * step;
+    ctx.beginPath();
+    ctx.moveTo(padding.left, y);
+    ctx.lineTo(padding.left + chartW, y);
+    ctx.stroke();
+    ctx.fillText(formatter(value), padding.left - 8, y + 4);
+  });
+}
+
+function drawLegend(ctx, series, x, y) {
+  ctx.font = "800 12px Inter, sans-serif";
+  let cursor = x;
+  series.forEach((item) => {
+    ctx.fillStyle = item.color;
+    ctx.fillRect(cursor, y, 12, 12);
+    ctx.fillStyle = "#495357";
+    ctx.textAlign = "left";
+    ctx.fillText(item.label, cursor + 18, y + 10);
+    cursor += 24 + ctx.measureText(item.label).width + 18;
+  });
+}
+
+function drawMonthLabel(ctx, label, x, y) {
+  ctx.fillStyle = palette.muted;
+  ctx.font = "800 12px Inter, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(label, x, y);
+}
+
+function drawWrappedLabel(ctx, label, x, y, maxWidth) {
+  const words = label.split(" ");
+  const lines = [];
+  let line = "";
+  words.forEach((word) => {
+    const test = line ? `${line} ${word}` : word;
+    if (ctx.measureText(test).width > maxWidth && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = test;
+    }
+  });
+  lines.push(line);
+  ctx.fillStyle = palette.muted;
+  ctx.font = "800 12px Inter, sans-serif";
+  ctx.textAlign = "center";
+  lines.slice(0, 2).forEach((text, index) => ctx.fillText(text, x, y + index * 15));
+}
+
+function setupCanvas(canvas) {
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const height = Number(canvas.getAttribute("height")) || rect.height || 320;
+  canvas.style.height = `${height}px`;
+  canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+  canvas.height = Math.floor(height * dpr);
+  return canvas.getContext("2d");
+}
+
+function roundRect(ctx, x, y, width, height, radius) {
+  const r = Math.min(radius, Math.abs(width) / 2, Math.abs(height) / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + width - r, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+  ctx.lineTo(x + width, y + height - r);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+  ctx.lineTo(x + r, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
 }
 
 function readMonthValues(row, map) {
@@ -460,8 +683,16 @@ function findOptionalRow(index, matches) {
   return null;
 }
 
-function getLine(key, statement = dashboardData.statement) {
+function getLine(key) {
+  return lineByKey(dashboardData.statement, key);
+}
+
+function lineByKey(statement, key) {
   return statement.find((line) => line.key === key);
+}
+
+function monthIndex(month) {
+  return months.findIndex((item) => item.key === month.key);
 }
 
 function normalizeText(value) {
@@ -534,211 +765,6 @@ function parseCsvRows(text) {
   return rows;
 }
 
-function drawGroupedBars(canvas, labels, series, options) {
-  const ctx = setupCanvas(canvas);
-  const { width, height } = canvas.getBoundingClientRect();
-  const dpr = window.devicePixelRatio || 1;
-  const w = width;
-  const h = height || 340;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.save();
-  ctx.scale(dpr, dpr);
-
-  const allValues = series.flatMap((item) => item.values.map(Math.abs));
-  const max = Math.max(1, ...allValues) * 1.32;
-  const padding = { top: 82, right: 22, bottom: 94, left: 58 };
-  const chartW = w - padding.left - padding.right;
-  const chartH = h - padding.top - padding.bottom;
-  const groupGap = 13;
-  const groupW = Math.max(30, (chartW - groupGap * (labels.length - 1)) / labels.length);
-  const barGap = 4;
-  const barW = Math.max(7, (groupW - barGap * (series.length - 1)) / series.length);
-
-  drawGrid(ctx, padding, chartW, chartH, max, options.valueFormatter);
-
-  labels.forEach((label, monthIndex) => {
-    const groupX = padding.left + monthIndex * (groupW + groupGap);
-    const placedLabels = [];
-    series.forEach((item, seriesIndex) => {
-      const rawValue = item.values[monthIndex] || 0;
-      const value = Math.abs(rawValue);
-      const barH = (value / max) * chartH;
-      const x = groupX + seriesIndex * (barW + barGap);
-      const y = padding.top + chartH - barH;
-      ctx.fillStyle = item.color;
-      roundRect(ctx, x, y, barW, barH, 5);
-      ctx.fill();
-      if (rawValue !== 0) {
-        const text = options.formatter(rawValue);
-        ctx.font = "800 12px Inter, sans-serif";
-        const labelWidth = ctx.measureText(text).width;
-        const labelHeight = 13;
-        const labelX = x + barW / 2;
-        let labelY = y - 8;
-        let box = {
-          left: labelX - labelHeight / 2,
-          right: labelX + labelHeight / 2,
-          top: labelY - labelWidth,
-          bottom: labelY
-        };
-
-        placedLabels.forEach((placed) => {
-          const overlapsX = box.left < placed.right + 3 && box.right > placed.left - 3;
-          const overlapsY = box.top < placed.bottom + 4 && box.bottom > placed.top - 4;
-          if (overlapsX && overlapsY) {
-            labelY = placed.top - 6;
-            box = {
-              left: labelX - labelHeight / 2,
-              right: labelX + labelHeight / 2,
-              top: labelY - labelWidth,
-              bottom: labelY
-            };
-          }
-        });
-
-        if (box.top < 8) {
-          labelY += 8 - box.top;
-          box.top = 8;
-          box.bottom = labelY;
-        }
-        placedLabels.push(box);
-
-        ctx.save();
-        ctx.translate(labelX, labelY);
-        ctx.rotate(-Math.PI / 2);
-        ctx.fillStyle = rawValue < 0 ? "#b3262f" : palette.ink;
-        ctx.font = "800 12px Inter, sans-serif";
-        ctx.textAlign = "left";
-        ctx.textBaseline = "middle";
-        ctx.fillText(text, 0, 0);
-        ctx.restore();
-      }
-    });
-    drawMonthLabel(ctx, label, groupX + groupW / 2, padding.top + chartH + 18);
-  });
-
-  drawLegend(ctx, series, padding.left, h - 18);
-  ctx.restore();
-}
-
-function drawSingleBars(canvas, labels, values, options) {
-  const ctx = setupCanvas(canvas);
-  const { width, height } = canvas.getBoundingClientRect();
-  const dpr = window.devicePixelRatio || 1;
-  const w = width;
-  const h = height || 300;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.save();
-  ctx.scale(dpr, dpr);
-
-  const max = Math.max(1, ...values);
-  const padding = { top: 24, right: 22, bottom: 66, left: 48 };
-  const chartW = w - padding.left - padding.right;
-  const chartH = h - padding.top - padding.bottom;
-  const gap = 13;
-  const barW = Math.max(18, (chartW - gap * (labels.length - 1)) / labels.length);
-
-  drawGrid(ctx, padding, chartW, chartH, max, formatPercent);
-  labels.forEach((label, index) => {
-    const value = values[index] || 0;
-    const barH = (value / max) * chartH;
-    const x = padding.left + index * (barW + gap);
-    const y = padding.top + chartH - barH;
-    ctx.fillStyle = options.color;
-    roundRect(ctx, x, y, barW, barH, 6);
-    ctx.fill();
-    ctx.fillStyle = palette.ink;
-    ctx.font = "700 11px Inter, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText(options.formatter(value), x + barW / 2, y > padding.top + 15 ? y - 7 : y + 14);
-    drawMonthLabel(ctx, label, x + barW / 2, padding.top + chartH + 18);
-  });
-  ctx.restore();
-}
-
-function drawGrid(ctx, padding, chartW, chartH, max, formatter) {
-  ctx.strokeStyle = palette.grid;
-  ctx.fillStyle = palette.muted;
-  ctx.font = "11px Inter, sans-serif";
-  ctx.textAlign = "right";
-  [0, 0.25, 0.5, 0.75, 1].forEach((step) => {
-    const y = padding.top + chartH - chartH * step;
-    ctx.beginPath();
-    ctx.moveTo(padding.left, y);
-    ctx.lineTo(padding.left + chartW, y);
-    ctx.stroke();
-    ctx.fillText(formatter(max * step), padding.left - 8, y + 4);
-  });
-}
-
-function drawMonthLabel(ctx, label, x, y) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(-Math.PI / 5);
-  ctx.fillStyle = palette.muted;
-  ctx.font = "12px Inter, sans-serif";
-  ctx.textAlign = "right";
-  ctx.fillText(label, 0, 0);
-  ctx.restore();
-}
-
-function drawLegend(ctx, series, x, y) {
-  const chartWidth = ctx.canvas.width / (window.devicePixelRatio || 1);
-  const maxX = chartWidth - 18;
-  const gap = 24;
-  const rowHeight = 20;
-  const rows = [[]];
-
-  ctx.font = "700 12px Inter, sans-serif";
-  let cursorX = x;
-  series.forEach((item) => {
-    const itemWidth = 18 + ctx.measureText(item.label).width + gap;
-    if (cursorX > x && cursorX + itemWidth > maxX) {
-      rows.push([]);
-      cursorX = x;
-    }
-    rows[rows.length - 1].push({ item, x: cursorX });
-    cursorX += itemWidth;
-  });
-
-  const startY = y - (rows.length - 1) * rowHeight;
-  rows.forEach((row, rowIndex) => {
-    row.forEach(({ item, x: itemX }) => {
-      const itemY = startY + rowIndex * rowHeight;
-    ctx.fillStyle = item.color;
-    ctx.fillRect(itemX, itemY - 10, 12, 12);
-    ctx.fillStyle = "#495357";
-    ctx.textAlign = "left";
-    ctx.font = "700 12px Inter, sans-serif";
-    ctx.fillText(item.label, itemX + 18, itemY);
-    });
-  });
-}
-
-function setupCanvas(canvas) {
-  const rect = canvas.getBoundingClientRect();
-  const dpr = window.devicePixelRatio || 1;
-  const height = Number(canvas.getAttribute("height")) || rect.height || 320;
-  canvas.style.height = `${height}px`;
-  canvas.width = Math.max(1, Math.floor(rect.width * dpr));
-  canvas.height = Math.floor(height * dpr);
-  return canvas.getContext("2d");
-}
-
-function roundRect(ctx, x, y, width, height, radius) {
-  const r = Math.min(radius, Math.abs(width) / 2, Math.abs(height) / 2);
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + width - r, y);
-  ctx.quadraticCurveTo(x + width, y, x + width, y + r);
-  ctx.lineTo(x + width, y + height - r);
-  ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
-  ctx.lineTo(x + r, y + height);
-  ctx.quadraticCurveTo(x, y + height, x, y + height - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
-}
-
 function formatCurrency(value) {
   const formatted = new Intl.NumberFormat("pt-BR", {
     style: "currency",
@@ -756,16 +782,8 @@ function compactCurrency(value) {
   return `${sign}R$ ${formatNumber(abs)}`;
 }
 
-function formatKpiThousands(value) {
-  const thousands = Math.trunc(Math.abs(value || 0) / 1000);
-  const formatted = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 }).format(thousands);
-  return value < 0 ? `(${formatted}K)` : `${formatted}K`;
-}
-
-function formatChartThousands(value) {
-  const thousands = Math.round(Math.abs(value || 0) / 1000);
-  const formatted = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 }).format(thousands);
-  return value < 0 ? `-${formatted}K` : `${formatted}K`;
+function formatKpiMillions(value) {
+  return compactCurrency(value);
 }
 
 function formatNumber(value) {
