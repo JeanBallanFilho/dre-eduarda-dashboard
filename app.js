@@ -413,7 +413,7 @@ function drawWaterfall(canvas, data) {
   ctx.save();
   ctx.scale(dpr, dpr);
 
-  const padding = { top: 42, right: 28, bottom: 82, left: 72 };
+  const padding = { top: 42, right: 28, bottom: 96, left: 72 };
   const chartW = w - padding.left - padding.right;
   const chartH = h - padding.top - padding.bottom;
   let running = 0;
@@ -462,7 +462,10 @@ function drawWaterfall(canvas, data) {
     ctx.fillStyle = item.value < 0 ? palette.expenses : palette.ink;
     ctx.font = "800 12px Inter, sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText(compactCurrency(item.value), x + barW / 2, y - 8 < 14 ? y + 17 : y - 8);
+    const valueLabelY = item.value < 0
+      ? Math.min(y + barH + 16, padding.top + chartH - 14)
+      : (y - 8 < 14 ? y + 17 : y - 8);
+    ctx.fillText(compactCurrency(item.value), x + barW / 2, valueLabelY);
     drawWrappedLabel(ctx, item.label, x + barW / 2, Math.max(zeroY, padding.top + chartH) + 24, barW + 18);
 
     running = end;
